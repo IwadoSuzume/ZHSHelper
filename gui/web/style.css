@@ -1,0 +1,683 @@
+:root {
+  --bg: #141317;
+  --card: #201F24;
+  --card-alt: #26252B;
+  --rail-pill: #726B73;
+  --border: #2C2A31;
+  --accent: #E7C1C8;
+  --accent-strong: #D99AA4;
+  --accent-ink: #362F3A;
+  --text: #F1EEF2;
+  --text-muted: #99939D;
+  --ok: #8BD17C;
+  --bad: #E5626A;
+  --gold: #E3B341;
+}
+
+* { box-sizing: border-box; }
+
+/* Flat, matches .app-shell's own background below - when the window's aspect
+   ratio doesn't match the fixed 1080x620 canvas, applyScale() letterboxes
+   it, leaving this background visible in the margin. A plain color match is
+   enough here (unlike a gradient) since both are the same flat tone. */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  font-size: 13px;
+  user-select: none;
+}
+
+/* The whole UI is designed at a fixed 1080x620 canvas and uniformly
+   transform-scaled (see app.js applyScale()) to fit whatever size the
+   window actually is - "等比缩放": resizing the window scales everything
+   together instead of reflowing, and never distorts the aspect ratio. */
+.app-shell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1080px;
+  height: 620px;
+  transform-origin: top left;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ---------------- title bar ---------------- */
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  flex: none;
+  padding: 0 6px;
+}
+
+.titlebar-drag {
+  flex: 1;
+  height: 100%;
+}
+
+.titlebar-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.title-btn {
+  width: 42px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: "Segoe MDL2 Assets", "Segoe UI Symbol", sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.title-btn:hover { background: rgba(255,255,255,.08); color: var(--text); }
+.title-btn-close:hover { background: #E81123; color: #fff; }
+
+/* ---------------- nav rail ---------------- */
+
+.shell-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+/* ---------------- splash ---------------- */
+
+/* Covers nav-rail + tab-panels only (not the titlebar above it), so the
+   custom min/close buttons stay usable even if course loading takes a
+   while - see onSplashReady() in app.js for when this fades out. */
+.splash {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--bg);
+  transition: opacity .3s ease;
+}
+
+.splash.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-mark {
+  flex: none;
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+}
+
+.splash-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.splash-spinner {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 4px solid var(--card-alt);
+  border-top-color: var(--accent);
+  animation: splash-spin .8s linear infinite;
+}
+
+@keyframes splash-spin { to { transform: rotate(360deg); } }
+
+.nav-rail {
+  flex: none;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0 14px;
+  gap: 10px;
+}
+
+.brand-badge {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: var(--card-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.brand-badge img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.nav-rail .tab {
+  flex: none;
+  width: 48px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.nav-rail .tab:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.nav-rail .tab.active { background: var(--rail-pill); color: #fff; }
+
+.tab-icon { width: 22px; height: 22px; }
+
+/* ---------------- panels ---------------- */
+
+.tab-panels {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 16px;
+}
+
+.page-title {
+  flex: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+/* The dashboard is a fixed-height flex column so the OUTER page never
+   scrolls - only the small boxes that opt into it (course lists, side
+   column as a last resort) scroll internally. Settings has no such
+   constraint and just scrolls normally like any settings page. */
+.tab-panel { display: none; height: 100%; min-height: 0; }
+.tab-panel.active { display: flex; flex-direction: column; gap: 12px; }
+#panel-settings.active { display: block; overflow-y: auto; }
+#panel-settings .page-title { margin-bottom: 14px; }
+
+/* Fixed height (not flex-grow) even though dashboard-grid is the dashboard's
+   only content now - letting it stretch to fill the panel just left the
+   course list and its mostly-empty rows looking stretched-out and sparse.
+   A capped height keeps it a reasonable size; the panel just carries a bit
+   of empty space below it instead. */
+.dashboard-grid {
+  flex: 0 0 450px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+/* col-main/col-side stretch (flex row default) to the same height, and each
+   pins its last element to the bottom via margin-top:auto - that's what
+   keeps the run card's bottom edge flush with the course list card's. */
+.col-main {
+  flex: 1.6 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.col-side {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Falls back to its own scrollbar rather than the whole page if the
+     stacked cards (login/qr/run) ever don't fit at a small window size -
+     the page itself must never be the thing that scrolls. */
+  overflow-y: auto;
+}
+
+/* No .card class on this one (deliberately) - just the button, no
+   surrounding title/border/background. margin-top:auto keeps it pinned to
+   col-side's bottom edge (unaffected by dropping the card chrome, since
+   that positioning came from this rule, not from .card). */
+.run-card { margin-top: auto; }
+
+.col-main > .card, .col-side > .card { margin-bottom: 0; }
+
+.card {
+  background: var(--card);
+  border: 0;
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+
+/* ---------------- buttons ---------------- */
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.btn-row-tight { margin-top: 0; gap: 8px; }
+
+.btn {
+  border: 0;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.btn-sm { padding: 7px 13px; font-size: 12px; border-radius: 12px; }
+
+/* The run button stands alone (no card chrome around it - see .run-card),
+   so it carries its own visual weight instead of a title + border/background
+   doing that job. Full stadium shape, like an extended FAB. */
+.btn-run { width: 100%; padding: 16px 18px; font-size: 15px; font-weight: 700; border-radius: 999px; }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn-primary:hover { background: var(--accent-strong); }
+.btn-primary:active { filter: brightness(.94); }
+.btn-primary:disabled { background: var(--card-alt); color: var(--text-muted); cursor: default; }
+
+.btn-secondary {
+  background: var(--card-alt);
+  color: var(--text);
+}
+.btn-secondary:hover { background: #302E36; }
+.btn-secondary:disabled { color: var(--text-muted); cursor: default; }
+
+.btn-warn {
+  background: rgba(229,98,106,.14);
+  color: var(--bad);
+}
+.btn-warn:hover { background: var(--bad); color: #241012; }
+.btn-warn:disabled { color: var(--text-muted); background: var(--card-alt); cursor: default; }
+
+/* ---------------- inputs ---------------- */
+
+.text-input, .select-input {
+  width: 100%;
+  background: var(--card-alt);
+  color: var(--text);
+  border: 0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-top: 6px;
+  font-family: inherit;
+}
+
+.text-input:focus, .select-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.field-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.field-label {
+  flex: 1;
+  min-width: 160px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ---------------- switch ---------------- */
+
+.switch {
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  border: 0;
+  background: #3F3C43;
+  position: relative;
+  cursor: pointer;
+  transition: background .18s ease;
+  flex: none;
+}
+
+.switch[aria-checked="true"] { background: var(--accent); }
+
+.switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform .18s cubic-bezier(.33,1,.68,1), background .18s ease;
+}
+
+.switch[aria-checked="true"] .switch-thumb { transform: translateX(20px); background: var(--accent-ink); }
+
+/* ---------------- login ---------------- */
+
+/* Chip + whichever single action button applies (开始登录 / 取消登录 /
+   重新登录 - app.js shows exactly one of the three at a time) all share this
+   one row instead of a separate hint paragraph + button row below the
+   title, which is what made the not-logged-in state take three lines. */
+.login-status-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* compact (logged in): only 重新登录 is a valid action, hide 开始登录 even
+   though its own `hidden` attribute may say otherwise (see onLoginFinished -
+   it's restored unconditionally there since the failed/cancelled path needs
+   it back, and this class-based rule is what actually keeps it hidden once
+   logged in). */
+.login-card.compact #btn-login {
+  display: none;
+}
+
+.qr-box {
+  position: relative;
+  margin: 8px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 118px;
+  height: 118px;
+  background: var(--card-alt);
+  border-radius: 16px;
+}
+
+.qr-box img { width: 100%; height: 100%; padding: 12px; }
+
+.qr-placeholder {
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--card-alt);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-chip.ok { color: var(--ok); background: rgba(139,209,124,.14); }
+.status-chip.bad { color: var(--bad); background: rgba(229,98,106,.14); }
+.status-chip.pending { color: var(--gold); background: rgba(227,179,65,.14); }
+
+/* ---------------- courses ---------------- */
+
+/* Fills col-main's stretched height; never scrolls itself (overflow:hidden)
+   - only its two .course-list boxes below do, once their grown height still
+   isn't enough for all the rows. The progress readout keeps a small fixed
+   gap above it rather than being pushed around, since the lists above it
+   now absorb all the card's leftover height themselves.
+   flex:1 1 0 (not the equivalent-looking `flex:1` shorthand, which computes
+   to a PERCENTAGE flex-basis:0%) - percentage flex-basis inside a
+   stretch-sized flex item (col-main here) is a genuinely inconsistent corner
+   of the flexbox spec/engines; it was silently resolving courses-card to
+   its content height instead of filling col-main. A literal 0 length has no
+   such ambiguity. */
+.courses-card {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 14px (not 8px): a full-height list scrolled to a partial row sits right at
+   its own boundary, so the next group's title needs real breathing room or
+   the two read as crowded into each other. flex:1 1 0 (not none) - the two
+   groups now SHARE whatever vertical room courses-card has, instead of each
+   being a fixed 128px block. That room varies a lot (min-height:500px on
+   the grid, a tall window, few vs. many courses), and a fixed list height
+   used to leave that leftover as dead empty space between the lists and
+   the progress HUD - which read as a layout bug ("why is there a big empty
+   gap, why is the HUD floating disconnected from the list above it") even
+   though nothing was technically broken. Letting the lists grow means that
+   room becomes more visible rows instead of a void.
+   No min-height:0 here (deliberately, unlike most flex items in this file) -
+   leaving it at the default `auto` lets flexbox's automatic-minimum-size
+   rule apply: since this group has overflow:visible, its floor becomes its
+   own content's min-content size, which includes .course-list's own
+   min-height:64px. Overriding it to 0 (as tried initially) breaks that
+   chain - the group collapses to 0 under real space pressure and silently
+   swallows the list's 64px floor, since overflow:hidden two levels up on
+   .courses-card then clips it away entirely. */
+.course-group {
+  margin-top: 14px;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-group-title {
+  flex: none;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* min-height (not a fixed height) - grows with courses-card's available
+   room via the flex column above, only falling back to its own scrollbar
+   once content exceeds whatever height it was actually given. */
+.course-list {
+  flex: 1 1 0;
+  min-height: 64px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-row {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.course-row:last-child { border-bottom: none; }
+
+.course-row input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; flex: none; }
+
+.course-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* margin:auto self-centers this lone child inside the now-flexible
+   .course-list (a flex column), instead of it sitting pinned to the top-left
+   corner of a tall empty box - reads as a deliberate empty state, not
+   leftover space. */
+.empty-hint {
+  flex: none;
+  margin: auto;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 6px 4px;
+}
+
+/* ---------------- progress ---------------- */
+
+/* Lives inside .courses-card, right after the two course-groups (which now
+   flex-grow to absorb all the card's leftover height themselves, so this
+   just needs a small fixed gap rather than being pushed to the bottom). A
+   flat rounded sub-panel, matching the rest of the card language. */
+.progress-block {
+  flex: none;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--card-alt);
+}
+
+.progress-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+/* Plain, directly-updated status text - no timestamp, no tag chip, no
+   monospace: just the course/video name as ordinary prose, not a
+   command-prompt-style log line. */
+.current-status {
+  margin-bottom: 10px;
+}
+.current-course, .current-video {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.current-course { color: var(--text); font-weight: 600; }
+.current-video { color: var(--text-muted); }
+.current-course:empty, .current-video:empty { display: none; }
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-track {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--card);
+  overflow: hidden;
+}
+
+.progress-fill {
+  position: relative;
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width .3s ease;
+}
+
+.progress-percent {
+  font-weight: 700;
+  font-family: "JetBrains Mono", Consolas, "Cascadia Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-strong);
+  width: 58px;
+  text-align: right;
+}
+
+.progress-caption {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Needs manual attention (most likely a CAPTCHA - see the threshold check
+   in app.js's onRunCourseEnd), so it's a tinted banner rather than plain
+   caption text - it should read as distinct from the routine status lines
+   above it. */
+.captcha-alert {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(227,179,65,.14);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  margin-left: 7px;
+  vertical-align: 2px;
+}
+.live-dot.on {
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ---------------- statusbar ---------------- */
+
+.statusbar {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 18px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.save-hint {
+  color: var(--ok);
+  font-size: 12px;
+}
+
+/* ---------------- scrollbars ---------------- */
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }

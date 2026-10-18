@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>ZHSHelper selftest</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="titlebar">
+    <div class="titlebar-drag pywebview-drag-region"></div>
+    <div class="titlebar-buttons">
+      <button id="btn-min" class="title-btn" title="最小化">&#xE921;</button>
+      <button id="btn-close" class="title-btn title-btn-close" title="关闭">&#xE8BB;</button>
+    </div>
+  </div>
+
+  <div class="shell-body">
+
+    <div class="splash" id="splash">
+      <img class="splash-mark" src="assets/logo.png" alt="ZHSHelper">
+      <div class="splash-title">ZHSHelper</div>
+      <div class="splash-spinner"></div>
+    </div>
+
+    <nav class="nav-rail">
+      <div class="brand-badge" title="ZHSHelper"><img src="assets/logo.png" alt="ZHSHelper"></div>
+      <button class="tab active" data-tab="dashboard" title="工作台">
+        <svg class="tab-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="8" height="8" rx="2.5" fill="currentColor"/>
+          <rect x="13" y="3" width="8" height="8" rx="2.5" fill="currentColor"/>
+          <rect x="3" y="13" width="8" height="8" rx="2.5" fill="currentColor"/>
+          <rect x="13" y="13" width="8" height="8" rx="2.5" fill="currentColor"/>
+        </svg>
+      </button>
+      <button class="tab" data-tab="settings" title="设置">
+        <svg class="tab-icon" viewBox="0 0 24 24">
+          <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="9" cy="6" r="2.4" fill="currentColor"/>
+          <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="16" cy="12" r="2.4" fill="currentColor"/>
+          <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="11" cy="18" r="2.4" fill="currentColor"/>
+        </svg>
+      </button>
+    </nav>
+
+    <div class="tab-panels">
+
+      <section class="tab-panel active" id="panel-dashboard">
+        <h1 class="page-title">工作台</h1>
+        <div class="dashboard-grid">
+
+          <div class="col-main">
+            <div class="card courses-card">
+              <div class="row-between">
+                <div class="section-title">课程列表</div>
+                <div class="btn-row btn-row-tight">
+                  <button id="btn-select-all" class="btn btn-secondary btn-sm">全选</button>
+                  <button id="btn-select-none" class="btn btn-secondary btn-sm">全不选</button>
+                  <button id="btn-refresh-courses" class="btn btn-secondary btn-sm">刷新</button>
+                </div>
+              </div>
+              <p class="hint" id="courses-hint">先完成登录，再刷新课程列表。</p>
+              <div class="course-group">
+                <div class="course-group-title">知到共享学分课</div>
+                <div class="course-list" id="list-zhidao"><div class="empty-hint">暂无数据</div></div>
+              </div>
+              <div class="course-group">
+                <div class="course-group-title">校内学分课 (Hike)</div>
+                <div class="course-list" id="list-hike"><div class="empty-hint">暂无数据</div></div>
+              </div>
+
+              <div class="progress-block">
+                <div class="progress-label">实时进度<span class="live-dot" id="live-dot" title="运行中"></span></div>
+                <div class="current-status">
+                  <div class="current-course" id="current-course"></div>
+                  <div class="current-video" id="current-video"></div>
+                </div>
+                <div class="progress-row">
+                  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+                  <div class="progress-percent" id="progress-percent">--</div>
+                </div>
+                <div class="progress-caption" id="progress-caption">尚未开始</div>
+                <div class="captcha-alert" id="captcha-alert" hidden>检测到人机验证，请手动验证后继续刷课</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-side">
+            <div class="card login-card" id="login-card">
+              <div class="row-between">
+                <div class="section-title">登录状态</div>
+                <div class="login-status-group">
+                  <div class="status-chip" id="login-status">未登录</div>
+                  <button id="btn-login" class="btn btn-primary btn-sm">开始登录</button>
+                  <button id="btn-cancel-login" class="btn btn-secondary btn-sm" hidden>取消登录</button>
+                  <button id="btn-relogin" class="btn btn-secondary btn-sm" hidden>重新登录</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card qr-card" id="qr-card">
+              <div class="section-title">二维码</div>
+              <div class="qr-box" id="qr-box">
+                <img id="qr-img" alt="登录二维码" hidden>
+                <div id="qr-placeholder" class="qr-placeholder">点击"开始登录"生成二维码</div>
+              </div>
+            </div>
+
+            <div class="run-card">
+              <button id="btn-run-toggle" class="btn btn-run btn-primary">开始运行</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="tab-panel" id="panel-settings">
+        <h1 class="page-title">设置</h1>
+        <div class="field-row">
+          <label class="field-label">倍速<input type="number" id="opt-speed" class="text-input"></label>
+          <label class="field-label">完成阈值<input type="number" id="opt-threshold" class="text-input"></label>
+          <label class="field-label">单课时限（分钟）<input type="number" id="opt-limit" class="text-input"></label>
+        </div>
+        <button id="btn-save-settings" class="btn btn-primary">保存设置</button>
+        <button id="btn-visit-site" class="btn btn-secondary">访问我的网站</button>
+        <span class="save-hint" id="save-hint"></span>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span id="status-text">© 2026 Suzume</span>
+    <span id="version-text"></span>
+  </div>
+</div>
+
+<script>
+  window.pywebview = {
+    api: {
+      get_bootstrap: function () {
+        return Promise.resolve({ version: "selftest", loggedIn: true, settings: {}, state: {} });
+      },
+      get_courses: function () {
+        return Promise.resolve([
+          { id: "10086", name: "大学英语（三）综合教程", type: "zhidao" },
+          { id: "20579", name: "中国近现代史纲要", type: "hike" }
+        ]);
+      },
+      minimize_window: function () {}, close_window: function () {},
+      start_qr_login: function () { return Promise.resolve({ ok: true }); },
+      cancel_login: function () { return Promise.resolve(); },
+      start_run: function () { return Promise.resolve({ ok: true }); },
+      stop_run: function () { return Promise.resolve(); },
+      save_settings: function () { return Promise.resolve(); },
+      open_url: function () {}
+    }
+  };
+</script>
+<script src="app.js"></script>
+<script>
+  window.dispatchEvent(new Event("pywebviewready"));
+  document.title = "SELFTEST-READY";
+</script>
+</body>
+</html>

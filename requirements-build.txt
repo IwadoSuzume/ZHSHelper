@@ -1,0 +1,7 @@
+# Release build only (gui\build_release.py) - not needed to run the app.
+-r requirements.txt
+-r requirements-gui.txt
+pyinstaller>=6.6
+python-minifier>=2.11
+rjsmin>=1.2
+rcssmin>=1.1

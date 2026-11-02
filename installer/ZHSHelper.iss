@@ -35,7 +35,7 @@ AppId={#AppGuid}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
-AppPublisher=Suzume
+AppPublisher=Sensu
 AppPublisherURL=https://suzume.cloud
 AppSupportURL=https://suzume.cloud/projects/zhshelper
 VersionInfoVersion={#AppVersion}
@@ -79,7 +79,7 @@ chinesesimplified.RemoveUserData=是否同时删除 {#AppName} 的用户数据�
 [InstallDelete]
 ; files of the previous release: a single-file exe that loaded the project's
 ; .py files from this folder - they are inside the exe now
-Type: files; Name: "{app}\fucker.py"
+Type: files; Name: "{app}\helper.py"
 Type: files; Name: "{app}\utils.py"
 Type: files; Name: "{app}\ObjDict.py"
 Type: files; Name: "{app}\logger.py"

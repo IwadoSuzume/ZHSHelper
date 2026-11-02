@@ -7,7 +7,7 @@ if getattr(sys, "frozen", False):
     ROOT = os.path.dirname(os.path.abspath(sys.executable))
 else:
     ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # fucker.py/utils.py/etc. live one directory above gui/. A packaged build
+    # helper.py/utils.py/etc. live one directory above gui/. A packaged build
     # carries them inside the exe, so nothing on disk is ever imported there.
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
@@ -22,10 +22,10 @@ import threading
 from functools import partial
 
 # utils.progressBar's default argument calls os.get_terminal_size() at import
-# time, and fucker.py calls it directly with no guard. A --windowed build (or
+# time, and helper.py calls it directly with no guard. A --windowed build (or
 # any console-less launch) has no terminal, so the real os.get_terminal_size()
 # raises OSError there. Patch it before the first `import utils`/`import
-# fucker` below so both call sites get a safe fallback instead of crashing.
+# helper` below so both call sites get a safe fallback instead of crashing.
 _real_get_terminal_size = os.get_terminal_size
 
 
@@ -42,7 +42,7 @@ os.get_terminal_size = _safe_get_terminal_size
 class _SafeStdout:
     """Stands in for sys.stdout/stderr for the whole process lifetime.
 
-    A --windowed build has sys.stdout/stderr set to None, and fucker.py's
+    A --windowed build has sys.stdout/stderr set to None, and helper.py's
     tree-view prints + utils.progressBar's \\r-based updates would crash the
     first time they run. This absorbs writes unconditionally, optionally
     tees to a real console when one is attached, and can forward completed
@@ -109,7 +109,7 @@ import utils
 
 utils.getDir = lambda: ROOT
 
-from fucker import Fucker
+from helper import Helper
 from utils import getConfigPath, getRealPath, cookie_jar_to_list, versionCmp
 from ObjDict import ObjDict
 from logger import logger
@@ -145,8 +145,8 @@ PROGRESS_RE = re.compile(r"^(?P<prefix>.*?) \|(?P<bar>[#\s]*)\|\s*(?P<percent>[\
 ctypes.pythonapi.PyThreadState_SetAsyncExc.argtypes = (ctypes.c_long, ctypes.py_object)
 ctypes.pythonapi.PyThreadState_SetAsyncExc.restype = ctypes.c_long
 
-_fucker = None
-_fucker_lock = threading.Lock()
+_helper = None
+_helper_lock = threading.Lock()
 
 _worker_lock = threading.Lock()
 _worker = {"thread": None, "kind": None, "stop": threading.Event(), "force": threading.Event()}
@@ -216,15 +216,15 @@ def save_settings(patch):
     with open(getConfigPath(), "w", encoding="utf-8") as f:
         json.dump(config, f, indent=4)
 
-    # Hot-apply onto the live Fucker singleton (if it exists yet) instead of
+    # Hot-apply onto the live Helper singleton (if it exists yet) instead of
     # rebuilding it, so an already-logged-in session/cookies/course cache
     # survives a settings change.
-    if _fucker is not None:
-        _fucker.proxies = config.proxies or {}
+    if _helper is not None:
+        _helper.proxies = config.proxies or {}
         pushplus_token = config.pushplus.enable and config.pushplus.token or ""
         bark_token = config.bark.enable and config.bark.token or ""
-        _fucker._pushplus = partial(pushpluser, token=pushplus_token) if pushplus_token else (lambda *a, **k: None)
-        _fucker._bark = partial(barkpusher, token=bark_token) if bark_token else (lambda *a, **k: None)
+        _helper._pushplus = partial(pushpluser, token=pushplus_token) if pushplus_token else (lambda *a, **k: None)
+        _helper._bark = partial(barkpusher, token=bark_token) if bark_token else (lambda *a, **k: None)
     logger.setLevel(config.logLevel or "WARNING")
 
     # speed/threshold/limit have no config.json field (see start_run) - they
@@ -265,7 +265,7 @@ def save_gui_state(patch):
     return state
 
 
-def _try_recover_cookies(fucker, config):
+def _try_recover_cookies(helper, config):
     cookies_path = getRealPath("./cookies.json")
     if not (config.save_cookies and os.path.exists(cookies_path)):
         return False
@@ -273,40 +273,40 @@ def _try_recover_cookies(fucker, config):
         with open(cookies_path, "r", encoding="utf-8") as f:
             raw = f.read() or "{}"
             cookies = json.loads(raw)
-        fucker.cookies = cookies
-        ls = fucker.getZhidaoList()
+        helper.cookies = cookies
+        ls = helper.getZhidaoList()
         if ls:
-            fucker.getZhidaoContext(ls[-1].secret)
-        ls = fucker.getHikeList()
+            helper.getZhidaoContext(ls[-1].secret)
+        ls = helper.getHikeList()
         if ls:
-            fucker.getHikeContext(ls[-1].courseId)
+            helper.getHikeContext(ls[-1].courseId)
         return True
     except Exception:
         return False
 
 
-def _save_cookies_to_disk(fucker, config):
+def _save_cookies_to_disk(helper, config):
     if not config.save_cookies:
         return
     cookies_path = getRealPath("./cookies.json")
     with open(cookies_path, "w", encoding="utf-8") as f:
-        json.dump(cookie_jar_to_list(fucker.cookies), f, indent=2, ensure_ascii=False)
+        json.dump(cookie_jar_to_list(helper.cookies), f, indent=2, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------
-# Fucker lifecycle — one long-lived instance, hot-reloaded rather than rebuilt
+# Helper lifecycle — one long-lived instance, hot-reloaded rather than rebuilt
 # ---------------------------------------------------------------------------
 
-def get_fucker():
-    global _fucker
-    with _fucker_lock:
-        if _fucker is None:
+def get_helper():
+    global _helper
+    with _helper_lock:
+        if _helper is None:
             config = load_or_migrate_config()
             logger.setLevel(config.logLevel or "WARNING")
             pushplus_token = config.pushplus.enable and config.pushplus.token or ""
             bark_token = config.bark.enable and config.bark.token or ""
-            _fucker = Fucker(proxies=config.proxies or {}, pushplus_token=pushplus_token, bark_token=bark_token)
-        return _fucker
+            _helper = Helper(proxies=config.proxies or {}, pushplus_token=pushplus_token, bark_token=bark_token)
+        return _helper
 
 
 def _to_data_uri(img_bytes):
@@ -373,10 +373,10 @@ def request_stop(force=False):
 
 def get_bootstrap():
     config = load_or_migrate_config()
-    fucker = get_fucker()
-    logged_in = bool(fucker.cookies)
+    helper = get_helper()
+    logged_in = bool(helper.cookies)
     if not logged_in:
-        logged_in = _try_recover_cookies(fucker, config)
+        logged_in = _try_recover_cookies(helper, config)
     meta = {}
     try:
         meta = json.loads(resources.read_text("meta.json"))
@@ -393,14 +393,14 @@ def get_bootstrap():
 
 
 def get_courses(force_refresh=False):
-    fucker = get_fucker()
+    helper = get_helper()
     if force_refresh:
-        fucker.courses.zhidao = None
-        fucker.courses.hike = None
+        helper.courses.zhidao = None
+        helper.courses.hike = None
     out = []
-    for c in fucker.getZhidaoList() or []:
+    for c in helper.getZhidaoList() or []:
         out.append({"id": str(c.secret), "name": c.courseName, "type": "zhidao"})
-    for c in fucker.getHikeList() or []:
+    for c in helper.getHikeList() or []:
         out.append({"id": str(c.courseId), "name": c.courseName, "type": "hike"})
     return out
 
@@ -408,7 +408,7 @@ def get_courses(force_refresh=False):
 def start_login(push):
     def worker():
         try:
-            fucker = get_fucker()
+            helper = get_helper()
             config = load_or_migrate_config()
 
             def qr_cb(img_bytes):
@@ -424,8 +424,8 @@ def start_login(push):
                     push("onLoginStatus", "expired")
 
             with _capture_stdout(on_line):
-                fucker.login(use_qr=True, qr_callback=qr_cb)
-            _save_cookies_to_disk(fucker, config)
+                helper.login(use_qr=True, qr_callback=qr_cb)
+            _save_cookies_to_disk(helper, config)
             push("onLoginStatus", "success")
         except KeyboardInterrupt:
             push("onLoginStatus", "cancelled")
@@ -452,15 +452,15 @@ def start_run(course_ids, options, push):
     })
 
     def worker():
-        fucker = get_fucker()
+        helper = get_helper()
         speed = options.get("speed") or None
         threshold = options.get("threshold") or None
         limit = options.get("limit") or 0
-        # Replicates Fucker.__init__'s own normalization; plain attribute
+        # Replicates Helper.__init__'s own normalization; plain attribute
         # assignment would skip it since speed/end_thre/limit have no setters.
-        fucker.speed = speed and max(float(speed), 0.1)
-        fucker.end_thre = min(float(threshold) if threshold else 0.91, 1.0)
-        fucker.limit = abs(int(limit)) if limit else 0
+        helper.speed = speed and max(float(speed), 0.1)
+        helper.end_thre = min(float(threshold) if threshold else 0.91, 1.0)
+        helper.limit = abs(int(limit)) if limit else 0
 
         def on_line(line):
             m = PROGRESS_RE.match(line)
@@ -482,7 +482,7 @@ def start_run(course_ids, options, push):
                     push("onRunCourseStart", cid)
                     ok = True
                     try:
-                        fucker.fuckCourse(cid)
+                        helper.studyCourse(cid)
                     except KeyboardInterrupt:
                         ok = False
                     except Exception as e:

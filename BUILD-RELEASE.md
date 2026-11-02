@@ -24,7 +24,7 @@ gui\build_exe.bat
 ## 构建流程
 
 1. **资源打包**：`gui/web` 的 HTML/CSS/JS（CSS、JS 先用 rcssmin/rjsmin 压缩）、logo 和 `meta.json` 打成 zip，生成 `gui/build/stage/_bundle.py`，编译进 exe。运行时整个界面以内存中的单个 HTML 加载，磁盘上没有 web 文件。
-2. **代码混淆**：GUI 用到的所有项目 `.py`（`gui/app.py`、`backend.py`、`resources.py`、`fucker.py`、`utils.py`、`ObjDict.py`、`logger.py`、`push.py`、`sign.py`、`zd_utils.py`）用 python-minifier 处理到 `gui/build/stage/`：去掉注释和文档字符串、缩短局部变量名。只打包这些副本，源码不会被改动。
+2. **代码混淆**：GUI 用到的所有项目 `.py`（`gui/app.py`、`backend.py`、`resources.py`、`helper.py`、`utils.py`、`ObjDict.py`、`logger.py`、`push.py`、`sign.py`、`zd_utils.py`）用 python-minifier 处理到 `gui/build/stage/`：去掉注释和文档字符串、缩短局部变量名。只打包这些副本，源码不会被改动。
 3. **冻结**：PyInstaller 单目录构建（`--onedir --windowed`）。项目代码只以字节码形式存在于 `ZHSHelper.exe` 内部的压缩归档里。
 4. **许可证**：`LICENSE.txt`（MIT）和 `THIRD-PARTY-NOTICES.txt`（Python 及全部打包的第三方库的许可证全文）写入构建目录。
 5. **检查**：扫描构建目录，确认没有 config/cookies/日志等个人文件，也没有明文项目源码。

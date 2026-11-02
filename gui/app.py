@@ -71,7 +71,7 @@ class Api:
 
 
 # the project's own modules - in a packaged build all of them live inside the exe
-PROJECT_MODULES = ("app", "backend", "resources", "fucker", "utils", "ObjDict", "logger", "push", "sign", "zd_utils")
+PROJECT_MODULES = ("app", "backend", "resources", "helper", "utils", "ObjDict", "logger", "push", "sign", "zd_utils")
 
 
 def selftest(online=False):
@@ -143,8 +143,8 @@ def selftest(online=False):
         od = ObjDict({"a": {"b": 1}}, default=None)
         if od.a.b != 1 or od.missing is not None:
             raise RuntimeError("ObjDict mismatch")
-        fucker = backend.get_fucker()
-        return {"fucker": type(fucker).__name__, "speed": fucker.speed}
+        helper = backend.get_helper()
+        return {"helper": type(helper).__name__, "speed": helper.speed}
 
     check("upstream_logic", upstream_logic)
 
@@ -239,7 +239,7 @@ def selftest(online=False):
             # the run worker end to end (stdout capture, error handling, finish
             # events) on a course id that doesn't exist - only without a login,
             # so no account is ever involved
-            if backend.get_fucker().cookies:
+            if backend.get_helper().cookies:
                 return "skipped (logged in)"
             state_path = os.path.join(backend.ROOT, "gui_state.json")
             saved = open(state_path, "rb").read() if os.path.isfile(state_path) else None

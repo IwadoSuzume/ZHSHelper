@@ -24,4 +24,4 @@
 
 ## 许可
 
-MIT License © 2026 Suzume，见 [LICENSE](LICENSE)
+MIT License © 2026 Sensu，见 [LICENSE](LICENSE)

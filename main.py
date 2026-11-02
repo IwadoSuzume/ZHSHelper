@@ -5,20 +5,18 @@ import argparse
 import platform
 from functools import partial
 from contextlib import suppress
-from fucker import Fucker
+from helper import Helper
 from logger import logger
 from ObjDict import ObjDict
 from utils import showImage, cookie_jar_to_list
 from utils import getConfigPath, getRealPath, versionCmp
 print("============================================================================\n" +
-     f"                                                                           \n" +
-     f" ______  __  __  ______  __  __  __    __  ______      __    __  __  __    \n" +
-     f"/\\  ___\\/\\ \\/\\ \\/\\___  \\/\\ \\/\\ \\/\\ \\-./  \\/\\  ___\\    /\\ \\  / / /\\ \\/\\ \\   \n" +
-     f"\\ \\___  \\ \\ \\_\\ \\/_/  /_\\ \\ \\_\\ \\ \\ \\-./\\ \\ \\  __\\    \\ \\ \\/ /  \\ \\ \\ \\ \\  \n" +
-     f" \\/\\_____\\ \\_____\\/\\_____\\ \\_____\\ \\_\\ \\ \\_\\ \\_____\\   \\ \\__/    \\ \\_\\ \\_\\ \n" +
-     f"  \\/_____/\\/_____/\\/_____/\\/_____/\\/_/  \\/_/\\/_____/    \\/_/      \\/_/\\/_/ \n" +
-     f"                                                                           \n" +
-     f"                                                                           \n" +
+     f"   _____ ______ _   _  _____ _    _                                        \n" +
+     f"  / ____|  ____| \\ | |/ ____| |  | |                                       \n" +
+     f" | (___ | |__  |  \\| | (___ | |  | |                                       \n" +
+     f"  \\___ \\|  __| | . ` |\\___ \\| |  | |                                       \n" +
+     f"  ____) | |____| |\\  |____) | |__| |                                       \n" +
+     f" |_____/|______|_| \\_|_____/ \\____/                                        \n" +
       "============================================================================\n")
 DEFAULT_CONFIG = {
     "username": "",
@@ -67,7 +65,7 @@ else:
         json.dump(config, f, indent=4)
 
 # parse arguments
-parser = argparse.ArgumentParser(prog="ZHS Fucker")
+parser = argparse.ArgumentParser(prog="ZHS Helper")
 parser.add_argument("-c", "--course", type=str, nargs="+",
                     help="CourseId or recruitAndCourseId, can be found in URL")
 parser.add_argument("-v", "--videos", type=str, nargs="+",
@@ -131,8 +129,8 @@ if args.proxy:  # parse proxy
             print(f"*Unsupported proxy type: {schema}")
             exit(1)
 
-# create an instance, now we are talking... or fucking
-fucker = Fucker(proxies=proxies, speed=args.speed,
+# create an instance, now we are talking...
+helper = Helper(proxies=proxies, speed=args.speed,
                 end_thre=args.threshold, limit=args.limit, pushplus_token=pushplus_token, bark_token=bark_token)
 
 cookies_path = getRealPath("./cookies.json")
@@ -142,13 +140,13 @@ if save_cookies and os.path.exists(cookies_path):
         raw = f.read() or '{}'
         cookies = json.loads(raw)
     with suppress(Exception):
-        fucker.cookies = cookies
-        ls = fucker.getZhidaoList()
+        helper.cookies = cookies
+        ls = helper.getZhidaoList()
         if ls:
-            fucker.getZhidaoContext(ls[-1].secret)
-        ls = fucker.getHikeList()
+            helper.getZhidaoContext(ls[-1].secret)
+        ls = helper.getHikeList()
         if ls:
-            fucker.getHikeContext(ls[-1].courseId)
+            helper.getHikeContext(ls[-1].courseId)
         print("Successfully recovered from saved cookies AWA\n")
         cookies_loaded = True
 
@@ -159,30 +157,30 @@ if not cookies_loaded:
         if qrlogin:
             callback = partial(
                 showImage, show_in_terminal=show_in_terminal, ensure_unicode=ensure_unicode)
-            fucker.login(use_qr=True, qr_callback=callback)
+            helper.login(use_qr=True, qr_callback=callback)
         else:
-            fucker.login(username, password)
+            helper.login(username, password)
         print("Login Successful √\n")
         if save_cookies:
             with open(cookies_path, 'w') as f:
-                json.dump(cookie_jar_to_list(fucker.cookies), f,
+                json.dump(cookie_jar_to_list(helper.cookies), f,
                           indent=2, ensure_ascii=False)
     except Exception as e:
         print(e)
         exit(1)
 
-# you can add cookies manually by setting cookies property of a Fucker instance
+# you can add cookies manually by setting cookies property of a Helper instance
 # notice that cookies of zhihuishu.com expires if you login again in somewhere else
-# fucker.cookies = {}
+# helper.cookies = {}
 
 exec_list = getRealPath("execution.json")
 # fetch course list
 if args.fetch:
     with open(exec_list, "w") as f:
         zhidao_ids = [{"name": c.courseName, "id": c.secret}
-                      for c in fucker.getZhidaoList()]
+                      for c in helper.getZhidaoList()]
         hike_ids = [{"name": c.courseName, "id": str(
-            c.courseId)} for c in fucker.getHikeList()]
+            c.courseId)} for c in helper.getHikeList()]
         json.dump(zhidao_ids + hike_ids, f, indent=4, ensure_ascii=False)
     exit(0)
 
@@ -197,7 +195,7 @@ if not course and os.path.isfile(exec_list):
 
 # still not found?
 if not course:
-    fucker.fuckWhatever()
+    helper.studyWhatever()
     exit(0)
 
 # auto detect mode
@@ -205,25 +203,25 @@ for c in course.copy():
     if args.videos:
         for v in args.videos:
             try:
-                fucker.fuckVideo(course_id=c, video_id=v)
-                print(f"Suzume is fucking {v}")
+                helper.studyVideo(course_id=c, video_id=v)
+                print(f"Sensu is studying {v}")
                 args.videos.remove(v)
             except Exception:
                 pass
     else:
         try:
-            fucker.fuckCourse(course_id=c)
+            helper.studyCourse(course_id=c)
             course.remove(c)
         except Exception as e:
             logger.exception(e)
-            print(f"Error when fucking course {c}:\n{e}")
+            print(f"Error when studying course {c}:\n{e}")
 if args.videos:
-    print(f"*the following videos are not fucked: {args.videos}")
+    print(f"*the following videos are not finished: {args.videos}")
 
-# use fuckCourse method to fuck the entire course
-# fucker.fuckCourse(course_id="")
+# use studyCourse method to study the entire course
+# helper.studyCourse(course_id="")
 
-# or if you want to fuck a video, use fuckVideo method
-# fucker.fuckVideo(course_id="", file_id="")
+# or if you want to study a video, use studyVideo method
+# helper.studyVideo(course_id="", file_id="")
 
 # check the source code or README to find more info

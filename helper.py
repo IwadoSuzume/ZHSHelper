@@ -47,7 +47,7 @@ class TimeLimitExceeded(TimeoutError):
 class CaptchaException(Exception):
     pass
 
-class Fucker:
+class Helper:
     def __init__(self, cookies: dict = None,
                  headers: dict = None,
                  proxies: dict = None,
@@ -57,15 +57,15 @@ class Fucker:
                  pushplus_token: str = '',
                  bark_token: str = ''):
         """
-        ### Fucker Class
+        ### Helper Class
         * `cookies`: dict, optional, cookies to use for the session
         * `headers`: dict, optional, headers to use for the session
         * `proxies`: dict, optional, proxies to use for the session
-        * `limit`: int, optional, time limit for each course, in minutes (default is 0), auto resets on fuck*Course methods call
+        * `limit`: int, optional, time limit for each course, in minutes (default is 0), auto resets on study*Course methods call
         * `speed`: float, optional, video playback speed
-        * `end_thre`: float, optional, threshold to stop the fucker, overloaded when there are questions left unanswered
+        * `end_thre`: float, optional, threshold to stop the helper, overloaded when there are questions left unanswered
         """
-        logger.debug(f"created a Fucker {id(self)}, limit: {limit}, speed: {speed}, end_thre: {end_thre}")
+        logger.debug(f"created a Helper {id(self)}, limit: {limit}, speed: {speed}, end_thre: {end_thre}")
 
         self.uuid = None # actually it's not a uuid, but a random string
         self.cookies = cookies or {}
@@ -90,7 +90,7 @@ class Fucker:
         logger.debug(f'proxies: {self.proxies}')
         logger.debug(f'headers: {self.headers}')
 
-        self.limit = abs(limit)                    # time limit for fucking, in minutes
+        self.limit = abs(limit)                    # time limit for studying, in minutes
         self.speed = speed and max(speed, 0.1)     # video play speed, Falsy values for default
         self.end_thre = min(end_thre or 0.91, 1.0) # video play end threshold, above this will be considered as finished
         self.prefix = "  |"                        # prefix for tree view
@@ -273,47 +273,47 @@ class Fucker:
 #            logger.exception(e)
 #            raise Exception(f"QR login failed: {e}")
 
-    def fuckWhatever(self):
-        """Fuck whatever is found"""
+    def studyWhatever(self):
+        """Study whatever is found"""
         zhidao_ids = [c.secret for c in self.getZhidaoList()]
         for i in zhidao_ids:
             try:
-                self.fuckZhidaoCourse(i)
+                self.studyZhidaoCourse(i)
             except Exception as e:
                 logger.exception(e)
                 continue
         hike_ids = [c.courseId for c in self.getHikeList()]
         for i in hike_ids:
             try:
-                self.fuckHikeCourse(i)
+                self.studyHikeCourse(i)
             except Exception as e:
                 logger.exception(e)
                 continue
 
-    def fuckCourse(self, course_id:str, tree_view:bool=True):
+    def studyCourse(self, course_id:str, tree_view:bool=True):
         """
-        ### Fuck the whole course
+        ### Study the whole course
         * `course_id`: `courseId`(Hike) or `recuitAndCourseId`(Zhidao)
         * `tree_view`: whether to print the tree view of the progress
         """
         if re.match(r".*[a-zA-Z].*", course_id): # determine if it's a courseId or a recruitAndCourseId
-            self.fuckZhidaoCourse(course_id, tree_view=tree_view) # it's a recruitAndCourseId
+            self.studyZhidaoCourse(course_id, tree_view=tree_view) # it's a recruitAndCourseId
         else: # it's a courseId
-            self.fuckHikeCourse(course_id, tree_view=tree_view)
+            self.studyHikeCourse(course_id, tree_view=tree_view)
 
-    def fuckVideo(self, course_id, video_id:str):
+    def studyVideo(self, course_id, video_id:str):
         """
-        ### Fuck a single video
+        ### Study a single video
         * `course_id`: `courseId`(Hike) or `recuitAndCourseId`(Zhidao)
         * `video_id`: `fileId`(Hike) or `videoId`(Zhidao, not visible in URL)
         """
         if re.match(r".*[a-zA-Z].*", course_id):
-            self.fuckZhidaoVideo(course_id, video_id)
+            self.studyZhidaoVideo(course_id, video_id)
         else:
-            self.fuckHikeVideo(course_id, video_id)
+            self.studyHikeVideo(course_id, video_id)
 
 #############################################
-# for some fucking reasons
+# for some reasons
 # there are 2 sets of completely different API for hike.zhihuishu.com and studyservice-api.zhihuishu.com
 # so we need to use different methods for different API
 #############################################
@@ -401,12 +401,12 @@ class Fucker:
             "videos": videos,
             "cookies": self.session.cookies.copy(),
             "headers": self.session.headers.copy(),
-            "fucked_time": 0
+            "studied_time": 0
         }, default={})
         self.context[RAC_id] = ctx
         return ctx
         
-    def fuckZhidaoCourse(self, RAC_id:str, tree_view:bool=True):
+    def studyZhidaoCourse(self, RAC_id:str, tree_view:bool=True):
         """
         * `RAC_id`: `recruitAndCourseId`
         * `tree_view`: whether to print the tree progress view of the course
@@ -419,7 +419,7 @@ class Fucker:
         course = ctx.course
         chapters = ctx.chapters
         
-        # start fucking
+        # start studying
         tprint(f"Zhidao course: {course.courseInfo.name or course.courseInfo.enName}")
         begin_time = time.time() # real world time
         prefix = self.prefix # prefix for tree-like print
@@ -427,14 +427,14 @@ class Fucker:
         try:
             for chapter in chapters.videoChapterDtos:
                 tprint(prefix) # extra line as separator
-                tprint(f"{prefix}__Fucking chapter {chapter.name}"[:w_lim])
+                tprint(f"{prefix}__Studying chapter {chapter.name}"[:w_lim])
                 for lesson in chapter.videoLessons:
                     tprint(prefix*2)
-                    tprint(f"{prefix*2}__Fucking lesson {lesson.name}"[:w_lim])
+                    tprint(f"{prefix*2}__Studying lesson {lesson.name}"[:w_lim])
                     for video in lesson.videoSmallLessons:
-                        tprint(f"{prefix*3}__Fucking video {video.name}"[:w_lim])
+                        tprint(f"{prefix*3}__Studying video {video.name}"[:w_lim])
                         try:
-                            self.fuckZhidaoVideo(RAC_id, video.videoId)
+                            self.studyZhidaoVideo(RAC_id, video.videoId)
                         except TimeLimitExceeded as e:
                             logger.info(f"Time limit exceeded: {e}")
                             self._pushplus("ZHSHelper","刷课已完成")
@@ -458,9 +458,9 @@ class Fucker:
             logger.info("User interrupted")
         wipeLine()
         tprint(prefix)
-        tprint(f"\r{prefix}__Fucked course {course.courseInfo.name}, cost {time.time()-begin_time:.2f}s\n")
+        tprint(f"\r{prefix}__Studied course {course.courseInfo.name}, cost {time.time()-begin_time:.2f}s\n")
     
-    def fuckZhidaoVideo(self, RAC_id, video_id):
+    def studyZhidaoVideo(self, RAC_id, video_id):
         """
         * `RAC_id`: `recruitAndCourseId`
         * `video_id`: `videoId`
@@ -514,7 +514,7 @@ class Fucker:
         ##### start main event loop, sort of...
         while played_time < end_time:
             time.sleep(1)
-            ctx.fucked_time += 1 # for time limit check
+            ctx.studied_time += 1 # for time limit check
             elapsed_time += 1
             played_time = min(played_time+speed, end_time) # update video time and make sure not exceeding end_time
             pause = pause or int(random() < 0.0025)*60 # randomly pause a minute, may avoid detection
@@ -850,33 +850,33 @@ class Fucker:
             "root": root,
             "cookies": self.session.cookies.copy(),
             "headers": self.session.headers.copy(),
-            "fucked_time": 0
+            "studied_time": 0
         }, default={})
         self.context[course_id] = ctx
         return ctx
     
-    def fuckHikeCourse(self, course_id:str, tree_view:bool=True):
+    def studyHikeCourse(self, course_id:str, tree_view:bool=True):
         tprint = print if tree_view else lambda *a, **k: None
         begin_time = time.time()
         root = self.getHikeContext(course_id).root
         
         prefix = self.prefix
-        logger.info(f"Fucking Hike course {course_id} (total root chapters: {len(root)})")
-        tprint(f"Fucking course {course_id} (total root chapters: {len(root)})")
+        logger.info(f"Studying Hike course {course_id} (total root chapters: {len(root)})")
+        tprint(f"Studying course {course_id} (total root chapters: {len(root)})")
         try:
             for chapter in root:
                 self._traverse(course_id, chapter, tree_view=tree_view)
         except KeyboardInterrupt:
             logger.info("user interrupted")
-        logger.info(f"Fucked course {course_id}, cost {time.time()-begin_time}s")
+        logger.info(f"Studied course {course_id}, cost {time.time()-begin_time}s")
         wipeLine()
         tprint(prefix)
-        tprint(f"{prefix}__Fucked course {course_id}, cost {time.time()-begin_time:.2f}s\n")
+        tprint(f"{prefix}__Studied course {course_id}, cost {time.time()-begin_time:.2f}s\n")
 
-    def fuckHikeVideo(self, course_id, file_id, prev_time=0):
+    def studyHikeVideo(self, course_id, file_id, prev_time=0):
         self._checkCookies()
         self._checkTimeLimit(course_id)
-        logger.info(f"Fucking Hike video {file_id} of course {course_id}")
+        logger.info(f"Studying Hike video {file_id} of course {course_id}")
         begin_time = time.time()
         ctx = self.getHikeContext(course_id)
         self._sessionReady(ctx) # set cookies, headers, proxies
@@ -886,7 +886,7 @@ class Fucker:
         # emulating video playing
         self.watchVideo(file_info.dataId)
 
-        # getting ready to fuck
+        # getting ready to study
         total_time = int(file_info.totalTime)
         start_date = int(time.time()*1000)
         speed = self.speed or 1.25 # default speed for Hike is 1.25
@@ -896,7 +896,7 @@ class Fucker:
         # start main loop
         while played_time <= end_time:
             time.sleep(1)
-            ctx.fucked_time += 1
+            ctx.studied_time += 1
             played_time = min(played_time+speed, total_time)
             # enter branch when video is finished or interval is reached
             if played_time >= end_time or \
@@ -905,10 +905,10 @@ class Fucker:
                 prev_time, played_time = ret_time, ret_time
             progressBar(played_time, end_time,
                         prefix=f"watching {file_id}", suffix="of threshold")
-        logger.info(f"Fucked video {file_id} of course {course_id}, cost {time.time()-begin_time:.2f}s")
+        logger.info(f"Studied video {file_id} of course {course_id}, cost {time.time()-begin_time:.2f}s")
         time.sleep(random()+1) # more human-like
 
-    def fuckFile(self, course_id, file_id):
+    def studyFile(self, course_id, file_id):
         self.stuViewFile(course_id, file_id)
         time.sleep(random()*2+1) # more human-like
 
@@ -919,16 +919,16 @@ class Fucker:
         prefix = self.prefix * depth
         if node.childList: # if childList is not None, then it's a chapter
             chapter = node
-            logger.debug(f"Fucking chapter {chapter.id}")
+            logger.debug(f"Studying chapter {chapter.id}")
             tprint(prefix) # separate chapters
-            tprint(f"{prefix}__Fucking chapter {chapter.name}"[:w_lim])
+            tprint(f"{prefix}__Studying chapter {chapter.name}"[:w_lim])
             for child in chapter.childList:
                 self._traverse(course_id, child, depth=depth, tree_view=tree_view)
         else: # if childList is None, then it's a file
             file = node
             file.studyTime = file.studyTime or 0 # sometimes it's None
-            logger.debug(f"Fucking file {file.id}, data type: {file.dataType}")
-            tprint(f"{prefix}__Fucking {file.name}"[:w_lim])
+            logger.debug(f"Studying file {file.id}, data type: {file.dataType}")
+            tprint(f"{prefix}__Studying {file.name}"[:w_lim])
 
             if file.studyTime >= file.totalTime*self.end_thre:
                 logger.debug(f"Skipped file {file.id}")
@@ -937,16 +937,16 @@ class Fucker:
             try:
                 match file.dataType:
                     case 3:
-                        self.fuckHikeVideo(course_id, file.id, file.studyTime)
+                        self.studyHikeVideo(course_id, file.id, file.studyTime)
                     case None:
                         tprint(f"{prefix}##Unsupported file type, may be a quiz"[:w_lim])
                     case _:
-                        self.fuckFile(course_id, file.id)
+                        self.studyFile(course_id, file.id)
             except TimeLimitExceeded as e:
                 logger.info(f"Time limit exceeded, video {file.id} skipped")
                 tprint(f"{prefix}##Time limit exceeded: {e}")
             except Exception as e:
-                logger.error(f"Failed to fuck file {file.id} of course {course_id}")
+                logger.error(f"Failed to study file {file.id} of course {course_id}")
                 logger.exception(e)
                 tprint(f"{prefix}##Failed: {e}"[:w_lim])
 
@@ -1052,7 +1052,7 @@ class Fucker:
             raise e
 
     def _checkTimeLimit(self, cid):
-        if self.limit and self.context[cid].fucked_time >= self.limit*60:
+        if self.limit and self.context[cid].studied_time >= self.limit*60:
             raise TimeLimitExceeded(f"{self.limit} minutes")
 
     def _sessionReady(self, ctx:dict=None):

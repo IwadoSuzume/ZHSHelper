@@ -51,7 +51,7 @@ SOURCES = (
     "gui/app.py",
     "gui/backend.py",
     "gui/resources.py",
-    "fucker.py",
+    "helper.py",
     "utils.py",
     "ObjDict.py",
     "logger.py",
@@ -159,11 +159,11 @@ def write_version_file(version):
                     fileType=0x1, subtype=0x0, date=(0, 0)),
   kids=[
     StringFileInfo([StringTable('080404b0', [
-      StringStruct('CompanyName', 'Suzume'),
+      StringStruct('CompanyName', 'Sensu'),
       StringStruct('FileDescription', 'ZHSHelper'),
       StringStruct('FileVersion', %(v)r),
       StringStruct('InternalName', 'ZHSHelper'),
-      StringStruct('LegalCopyright', 'Copyright (c) 2026 Suzume, MIT License'),
+      StringStruct('LegalCopyright', 'Copyright (c) 2026 Sensu, MIT License'),
       StringStruct('OriginalFilename', 'ZHSHelper.exe'),
       StringStruct('ProductName', 'ZHSHelper'),
       StringStruct('ProductVersion', %(v)r)])]),
@@ -234,7 +234,7 @@ def write_notices():
         "ZHSHelper - third-party notices",
         "=" * 72,
         "",
-        "ZHSHelper - MIT License, Copyright (c) 2026 Suzume - see LICENSE.txt.",
+        "ZHSHelper - MIT License, Copyright (c) 2026 Sensu - see LICENSE.txt.",
         "",
         "This build also contains the components listed below. Each is",
         "redistributed under its own licence, reproduced in full.",
@@ -329,7 +329,7 @@ def scan_build():
             if low in ("config.json", "cookies.json", "gui_state.json", "execution.json", "selftest.json") or low.endswith(".log"):
                 bad.append(os.path.join(dirpath, fn))
     # project source text that must only exist as bytecode inside the exe
-    needles = [b"class Fucker", b"def fuckCourse", b"window.__bridge", b"o6xpt3b#Qy$Z"]
+    needles = [b"class Helper", b"def studyCourse", b"window.__bridge", b"o6xpt3b#Qy$Z"]
     for dirpath, _, filenames in os.walk(APP_DIR):
         for fn in filenames:
             p = os.path.join(dirpath, fn)

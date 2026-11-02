@@ -187,13 +187,13 @@
   // True once the user has clicked 停止/强制停止 - suppresses the captcha
   // guess in onRunCourseEnd, since stopping early on purpose isn't captcha.
   var userStopRequested = false;
-  // fuckCourse() returns early (without raising) both on CAPTCHA and on a
+  // studyCourse() returns early (without raising) both on CAPTCHA and on a
   // user-configured time limit, so the backend can't tell GUI-side which one
   // happened - a course that exits this far short of finishing its current
   // video is almost always the CAPTCHA case in practice.
   var CAPTCHA_THRESHOLD = 80;
 
-  // fucker.py's tree-view prints nest with a literal repeating "  |" prefix.
+  // helper.py's tree-view prints nest with a literal repeating "  |" prefix.
   // Only the video name is pulled out of it - chapter/lesson lines and
   // everything else from the scraping process are no longer surfaced
   // anywhere in the UI (see logs/*.log on disk for the full detail).
@@ -201,8 +201,8 @@
     var s = raw.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
     while (s.slice(0, 3) === "  |") { s = s.slice(3); }
     var name = null;
-    if (s.indexOf("__Fucking video ") === 0) name = s.slice(16).trim();
-    else if (s.indexOf("__Fucking chapter ") !== 0 && s.indexOf("__Fucking lesson ") !== 0 && s.indexOf("__Fucking ") === 0) name = s.slice(10).trim();
+    if (s.indexOf("__Studying video ") === 0) name = s.slice(17).trim();
+    else if (s.indexOf("__Studying chapter ") !== 0 && s.indexOf("__Studying lesson ") !== 0 && s.indexOf("__Studying ") === 0) name = s.slice(11).trim();
     if (name) $("current-video").textContent = "当前的视频为: " + name;
   }
 

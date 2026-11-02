@@ -86,15 +86,18 @@ def versionCmp(v1:str, v2:str) -> int:
             return dt
     return len(v1) - len(v2)
 
-def wipeLine():
+def get_terminal_width(default=80):
     try:
-        width = os.get_terminal_size().columns
-    except OSError:  # Fix for PyCharm in Windows
-        width = 80
+        return os.get_terminal_size().columns
+    except OSError:
+        return default
+
+def wipeLine():
+    width = get_terminal_width(80)
     print('\r' + ' ' * (width), end = '\r', flush=True)
 
 def progressBar (iteration, total, prefix = '', suffix = '', decimals = 1,
-                      length = (os.get_terminal_size().columns-4), fill = '#'):
+                      length = None, fill = '#'):
     """
     ### Call in a loop to create terminal progress bar
     * `iteration`   - Required  : current iteration (Int)
@@ -105,6 +108,8 @@ def progressBar (iteration, total, prefix = '', suffix = '', decimals = 1,
     * `length`      - Optional  : character length of bar (Int)
     * `fill`        - Optional  : bar fill character (Str)
     """
+    if length is None:
+        length = get_terminal_width(80) - 4
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     prefix = f"{prefix} |"
     suffix = f"| {percent}% {suffix}"

@@ -1,5 +1,5 @@
 from zd_utils import Cipher, getEv, WatchPoint, HOME_KEY, VIDEO_KEY, QA_KEY
-from utils import progressBar, HMS, wipeLine, list_to_cookie_jar
+from utils import progressBar, HMS, wipeLine, list_to_cookie_jar, get_terminal_width
 from urllib.parse import unquote_plus as unquote
 from requests.adapters import HTTPAdapter, Retry
 from requests.cookies import RequestsCookieJar
@@ -423,7 +423,7 @@ class Helper:
         tprint(f"Zhidao course: {course.courseInfo.name or course.courseInfo.enName}")
         begin_time = time.time() # real world time
         prefix = self.prefix # prefix for tree-like print
-        w_lim = os.get_terminal_size().columns-1 # width limit for terminal output
+        w_lim = get_terminal_width(80) - 1 # width limit for terminal output
         try:
             for chapter in chapters.videoChapterDtos:
                 tprint(prefix) # extra line as separator
@@ -915,7 +915,7 @@ class Helper:
     def _traverse(self,course_id, node: ObjDict, depth=0, tree_view=True):
         depth += 1
         tprint = print if tree_view else lambda *a, **k: None
-        w_lim = os.get_terminal_size().columns-1 # width limit for terminal output
+        w_lim = get_terminal_width(80) - 1 # width limit for terminal output
         prefix = self.prefix * depth
         if node.childList: # if childList is not None, then it's a chapter
             chapter = node

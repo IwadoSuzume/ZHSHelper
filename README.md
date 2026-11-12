@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://suzume.cloud/uploads/1790398952814-f46f7182f59b.png" alt="ZHSHelper" width="720">
+  <img src="docs/screenshot.png" alt="ZHSHelper" width="720">
 </div>
 
 <h1 align="center">ZHSHelper</h1>
@@ -17,8 +17,6 @@
   <a href="https://suzume.cloud/downloads/ZHSHelper-Setup.exe"><strong>下载安装包</strong></a>
   &nbsp;·&nbsp;
   <a href="https://suzume.cloud/projects/zhshelper">项目主页</a>
-  &nbsp;·&nbsp;
-  <a href="#从源码运行">从源码运行</a>
 </p>
 
 ---
@@ -84,45 +82,6 @@ Hike 没有公开的课程深链，验证后会打开课程门户，需要手动
 
 **数据保存在哪里？**
 `config.json`、`cookies.json`、`gui_state.json` 与 `logs\` 都位于程序所在目录；卸载时可选择是否保留。
-
-## 从源码运行
-
-需要 Python 3.10–3.13（推荐 3.13）。
-
-```bat
-git clone https://github.com/IwadoSuzume/ZHSHelper.git
-cd ZHSHelper
-python -m venv venv
-venv\Scripts\pip install -r requirements.txt -r requirements-gui.txt
-venv\Scripts\python.exe gui\app.py
-```
-
-也可以直接双击 `打开界面.bat`。启动异常时运行 `诊断启动.bat`，错误会写入 `startup_error.log`。
-
-## 构建安装包
-
-需要 Python 3、Inno Setup 6 与构建依赖：
-
-```bat
-venv\Scripts\pip install -r requirements-build.txt
-打包.bat --installer
-```
-
-产物位于 `dist\ZHSHelper\ZHSHelper.exe` 与 `installer\output\ZHSHelper-Setup.exe`，详细流程见 [BUILD-RELEASE.md](BUILD-RELEASE.md)。
-
-## 项目结构
-
-```
-ZHSHelper/
-├─ gui/                 # 桌面端：pywebview 窗口、后端桥接、Web UI
-│  ├─ app.py            # 窗口与 JS API
-│  ├─ backend.py        # 登录、运行、设置、验证辅助
-│  └─ web/              # index.html / style.css / app.js
-├─ helper.py            # 智慧树平台逻辑
-├─ logger.py            # 日志
-├─ installer/           # Inno Setup 脚本
-└─ BUILD-RELEASE.md     # 发布构建说明
-```
 
 ## 免责声明
 

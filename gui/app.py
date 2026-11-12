@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import threading
 import time
 import webbrowser
 
@@ -58,6 +59,77 @@ class Api:
     def save_settings(self, patch=None):
         return backend.save_settings(patch or {})
 
+    def open_captcha_flow(self, course_id=None):
+        """Open the Zhihuishu login center in an in-app browser window,
+        pre-fill the saved credentials, and once the user has passed login /
+        CAPTCHA and reached the course portal, navigate that window to the
+        course that hit the CAPTCHA. The CAPTCHA itself is always solved by
+        the user."""
+        ctx = backend.captcha_context(course_id)
+        if not ctx.get("account") or not ctx.get("password"):
+            return {"ok": False, "error": "no_credentials"}
+
+        try:
+            win = webview.create_window(
+                "智慧树登录 · 完成人机验证",
+                ctx["loginUrl"],
+                width=1020,
+                height=760,
+                min_size=(720, 560),
+            )
+        except Exception:
+            win = None
+
+        if win is None:
+            webbrowser.open(ctx["loginUrl"])
+            return {"ok": True, "inApp": False, "url": ctx["courseUrl"]}
+
+        threading.Thread(
+            target=self._watch_captcha_window, args=(win, ctx), daemon=True
+        ).start()
+        return {"ok": True, "inApp": True, "url": ctx["courseUrl"]}
+
+    def _watch_captcha_window(self, win, ctx):
+        account = json.dumps(ctx.get("account") or "", ensure_ascii=False)
+        password = json.dumps(ctx.get("password") or "", ensure_ascii=False)
+        fill_js = _FILL_LOGIN_JS % (account, password)
+
+        def fill_login(*_):
+            # runs on the GUI thread (loaded event), not this worker thread -
+            # evaluate_js off-thread is unreliable on the WinForms backend.
+            try:
+                win.evaluate_js(fill_js)
+            except Exception:
+                pass
+        try:
+            win.events.loaded += fill_login
+        except Exception:
+            pass
+
+        deadline = time.time() + 15 * 60
+        while time.time() < deadline:
+            time.sleep(1.0)
+            try:
+                url = win.get_current_url() or ""
+            except Exception:
+                return  # window closed
+            on_login = "login.zhihuishu.com" in url or "passport.zhihuishu.com" in url
+            if "zhihuishu.com" in url and not on_login:
+                # the browser is on the course portal now - jump straight to
+                # the course whose video raised the CAPTCHA
+                time.sleep(1.2)
+                try:
+                    win.load_url(ctx["courseUrl"])
+                except Exception:
+                    pass
+                return
+
+    def save_theme(self, theme):
+        # UI-only preference: lives in gui_state.json next to speed/threshold,
+        # not in config.json (which is the helper's own runtime config).
+        backend.save_gui_state({"theme": "dark" if theme == "dark" else "light"})
+        return {"ok": True}
+
     def minimize_window(self):
         if self._window:
             self._window.minimize()
@@ -68,6 +140,42 @@ class Api:
 
     def open_url(self, url):
         webbrowser.open(url)
+
+
+_FILL_LOGIN_JS = """(function () {
+  function setValue(el, value) {
+    if (!el) return false;
+    try {
+      var desc = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value");
+      desc.set.call(el, value);
+    } catch (e) { el.value = value; }
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  }
+  var account = document.querySelector('input[name="account"], #account, #lname, input[type="text"], input[type="tel"]');
+  var password = document.querySelector('input[type="password"]');
+  var okAccount = setValue(account, %s);
+  var okPassword = setValue(password, %s);
+  if (!okPassword) {
+    var nodes = Array.prototype.slice.call(document.querySelectorAll("div,span,a,li,button"));
+    var tab = nodes.filter(function (el) {
+      return /账号登录|密码登录|账号密码/.test((el.textContent || "").trim());
+    })[0];
+    if (tab) tab.click();
+  }
+  if (okAccount && okPassword) {
+    setTimeout(function () {
+      var nodes = Array.prototype.slice.call(document.querySelectorAll("button,a,div,span"));
+      var btn = nodes.filter(function (el) {
+        var txt = (el.textContent || "").trim();
+        return /^(登录|立即登录|登 录)$/.test(txt) && el.offsetParent !== null;
+      })[0];
+      if (btn) btn.click();
+    }, 800);
+  }
+  return okAccount && okPassword;
+})()"""
 
 
 # the project's own modules - in a packaged build all of them live inside the exe
@@ -281,7 +389,7 @@ def selftest(online=False):
                     try:
                         seen["state"] = window.evaluate_js(
                             "({version: (document.getElementById('version-text') || {}).textContent || '',"
-                            " logo: (document.querySelector('.brand-badge img') || {}).naturalWidth || 0,"
+                            " logo: (document.querySelector('.rail-brand img') || {}).naturalWidth || 0,"
                             " cssRules: document.styleSheets.length ? document.styleSheets[0].cssRules.length : 0,"
                             " tabs: document.querySelectorAll('.tab').length,"
                             " engine: navigator.userAgent})")
@@ -317,7 +425,7 @@ def main():
         width=1100,
         height=665,
         min_size=(640, 500),
-        background_color="#141317",
+        background_color="#F2F2F4",
     )
     api.set_window(window)
     webview.start(debug=False)

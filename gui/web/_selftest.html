@@ -1,140 +1,361 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
 <title>ZHSHelper selftest</title>
 <link rel="stylesheet" href="style.css">
+<script>
+  /* theme hint before first paint: avoids a light flash for dark-mode users */
+  try {
+    if (localStorage.getItem("zhshelper.theme") === "dark") {
+      document.documentElement.dataset.theme = "dark";
+    }
+  } catch (e) {}
+</script>
 </head>
 <body>
 <div class="app-shell">
 
-  <div class="titlebar">
-    <div class="titlebar-drag pywebview-drag-region"></div>
-    <div class="titlebar-buttons">
-      <button id="btn-min" class="title-btn" title="最小化">&#xE921;</button>
-      <button id="btn-close" class="title-btn title-btn-close" title="关闭">&#xE8BB;</button>
-    </div>
-  </div>
+  <aside class="rail">
+    <div class="rail-brand" title="ZHSHelper"><img src="assets/logo.png" alt="ZHSHelper"></div>
+    <div class="rail-divider"></div>
 
-  <div class="shell-body">
-
-    <div class="splash" id="splash">
-      <img class="splash-mark" src="assets/logo.png" alt="ZHSHelper">
-      <div class="splash-title">ZHSHelper</div>
-      <div class="splash-spinner"></div>
-    </div>
-
-    <nav class="nav-rail">
-      <div class="brand-badge" title="ZHSHelper"><img src="assets/logo.png" alt="ZHSHelper"></div>
+    <nav class="rail-nav">
       <button class="tab active" data-tab="dashboard" title="工作台">
-        <svg class="tab-icon" viewBox="0 0 24 24">
-          <rect x="3" y="3" width="8" height="8" rx="2.5" fill="currentColor"/>
-          <rect x="13" y="3" width="8" height="8" rx="2.5" fill="currentColor"/>
-          <rect x="3" y="13" width="8" height="8" rx="2.5" fill="currentColor"/>
-          <rect x="13" y="13" width="8" height="8" rx="2.5" fill="currentColor"/>
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="3.5" width="7" height="7" rx="2.2"/>
+          <rect x="13.5" y="3.5" width="7" height="7" rx="2.2"/>
+          <rect x="3.5" y="13.5" width="7" height="7" rx="2.2"/>
+          <rect x="13.5" y="13.5" width="7" height="7" rx="2.2"/>
         </svg>
+        <span class="tab-label">工作台</span>
+      </button>
+      <button class="tab" data-tab="logs" title="日志">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="4.5" width="17" height="15" rx="3"/>
+          <path d="M7.5 9.5 11 13l-3.5 3.5M12.5 16h4"/>
+        </svg>
+        <span class="tab-label">日志</span>
+        <span class="log-dot" id="log-dot" hidden></span>
       </button>
       <button class="tab" data-tab="settings" title="设置">
-        <svg class="tab-icon" viewBox="0 0 24 24">
-          <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="9" cy="6" r="2.4" fill="currentColor"/>
-          <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="16" cy="12" r="2.4" fill="currentColor"/>
-          <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="11" cy="18" r="2.4" fill="currentColor"/>
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h9M17.5 7H20M4 12h3M11.5 12H20M4 17h9M17.5 17H20"/>
+          <circle cx="15" cy="7" r="2.3"/>
+          <circle cx="9" cy="12" r="2.3"/>
+          <circle cx="15" cy="17" r="2.3"/>
         </svg>
+        <span class="tab-label">设置</span>
       </button>
     </nav>
 
-    <div class="tab-panels">
-
-      <section class="tab-panel active" id="panel-dashboard">
-        <h1 class="page-title">工作台</h1>
-        <div class="dashboard-grid">
-
-          <div class="col-main">
-            <div class="card courses-card">
-              <div class="row-between">
-                <div class="section-title">课程列表</div>
-                <div class="btn-row btn-row-tight">
-                  <button id="btn-select-all" class="btn btn-secondary btn-sm">全选</button>
-                  <button id="btn-select-none" class="btn btn-secondary btn-sm">全不选</button>
-                  <button id="btn-refresh-courses" class="btn btn-secondary btn-sm">刷新</button>
-                </div>
-              </div>
-              <p class="hint" id="courses-hint">先完成登录，再刷新课程列表。</p>
-              <div class="course-group">
-                <div class="course-group-title">知到共享学分课</div>
-                <div class="course-list" id="list-zhidao"><div class="empty-hint">暂无数据</div></div>
-              </div>
-              <div class="course-group">
-                <div class="course-group-title">校内学分课 (Hike)</div>
-                <div class="course-list" id="list-hike"><div class="empty-hint">暂无数据</div></div>
-              </div>
-
-              <div class="progress-block">
-                <div class="progress-label">实时进度<span class="live-dot" id="live-dot" title="运行中"></span></div>
-                <div class="current-status">
-                  <div class="current-course" id="current-course"></div>
-                  <div class="current-video" id="current-video"></div>
-                </div>
-                <div class="progress-row">
-                  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-                  <div class="progress-percent" id="progress-percent">--</div>
-                </div>
-                <div class="progress-caption" id="progress-caption">尚未开始</div>
-                <div class="captcha-alert" id="captcha-alert" hidden>检测到人机验证，请手动验证后继续刷课</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-side">
-            <div class="card login-card" id="login-card">
-              <div class="row-between">
-                <div class="section-title">登录状态</div>
-                <div class="login-status-group">
-                  <div class="status-chip" id="login-status">未登录</div>
-                  <button id="btn-login" class="btn btn-primary btn-sm">开始登录</button>
-                  <button id="btn-cancel-login" class="btn btn-secondary btn-sm" hidden>取消登录</button>
-                  <button id="btn-relogin" class="btn btn-secondary btn-sm" hidden>重新登录</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="card qr-card" id="qr-card">
-              <div class="section-title">二维码</div>
-              <div class="qr-box" id="qr-box">
-                <img id="qr-img" alt="登录二维码" hidden>
-                <div id="qr-placeholder" class="qr-placeholder">点击"开始登录"生成二维码</div>
-              </div>
-            </div>
-
-            <div class="run-card">
-              <button id="btn-run-toggle" class="btn btn-run btn-primary">开始运行</button>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <section class="tab-panel" id="panel-settings">
-        <h1 class="page-title">设置</h1>
-        <div class="field-row">
-          <label class="field-label">倍速<input type="number" id="opt-speed" class="text-input"></label>
-          <label class="field-label">完成阈值<input type="number" id="opt-threshold" class="text-input"></label>
-          <label class="field-label">单课时限（分钟）<input type="number" id="opt-limit" class="text-input"></label>
-        </div>
-        <button id="btn-save-settings" class="btn btn-primary">保存设置</button>
-        <button id="btn-visit-site" class="btn btn-secondary">访问我的网站</button>
-        <span class="save-hint" id="save-hint"></span>
-      </section>
-
+    <div class="rail-foot">
+      <button id="btn-theme" class="theme-toggle" title="切换到深色模式" aria-label="切换主题">
+        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2Z"/>
+        </svg>
+        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/>
+        </svg>
+      </button>
     </div>
-  </div>
+  </aside>
 
-  <div class="statusbar">
-    <span id="status-text">© 2026 Sensu</span>
-    <span id="version-text"></span>
+  <div class="main">
+
+    <header class="titlebar">
+      <div class="titlebar-drag pywebview-drag-region"></div>
+      <div class="titlebar-buttons">
+        <button id="btn-min" class="title-btn" title="最小化">&#xE921;</button>
+        <button id="btn-close" class="title-btn title-btn-close" title="关闭">&#xE8BB;</button>
+      </div>
+    </header>
+
+    <div class="shell-body">
+
+      <div class="splash" id="splash">
+        <div class="splash-halo"></div>
+        <img class="splash-mark" src="assets/logo.png" alt="ZHSHelper">
+        <div class="splash-title">ZHSHelper</div>
+        <div class="splash-sub">正在准备工作台</div>
+        <div class="splash-spinner"></div>
+      </div>
+
+      <div class="tab-panels">
+
+        <section class="tab-panel active" id="panel-dashboard">
+          <div class="page-head">
+            <div class="page-head-copy">
+              <h1 class="page-title">工作台</h1>
+              <p class="page-sub">勾选课程，自动完成视频学习并实时同步进度</p>
+            </div>
+            <div class="page-head-badge">
+              <span class="badge-dot"></span>
+              本地运行
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+
+            <div class="col-main">
+              <div class="card courses-card">
+                <div class="card-head">
+                  <div class="card-head-copy">
+                    <div class="section-title">课程列表</div>
+                    <div class="hint" id="courses-hint">先完成登录，再刷新课程列表。</div>
+                  </div>
+                  <div class="seg">
+                    <button id="btn-select-all" class="seg-btn">全选</button>
+                    <button id="btn-select-none" class="seg-btn">全不选</button>
+                    <button id="btn-refresh-courses" class="seg-btn seg-btn-accent">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 6.4"/><path d="M20 5v6h-6"/></svg>
+                      刷新
+                    </button>
+                  </div>
+                </div>
+
+                <div class="course-scroll-wrap">
+                  <div class="course-scroll">
+                    <div class="course-group" id="group-zhidao" hidden>
+                      <div class="course-group-title">
+                        <span class="group-dot dot-zhidao"></span>
+                        知到共享学分课
+                        <span class="group-count" id="count-zhidao">0</span>
+                      </div>
+                      <div class="course-list" id="list-zhidao"><div class="empty-hint">暂无数据</div></div>
+                    </div>
+
+                    <div class="course-group" id="group-hike" hidden>
+                      <div class="course-group-title">
+                        <span class="group-dot dot-hike"></span>
+                        校内学分课 (Hike)
+                        <span class="group-count" id="count-hike">0</span>
+                      </div>
+                      <div class="course-list" id="list-hike"><div class="empty-hint">暂无数据</div></div>
+                    </div>
+
+                    <div class="courses-empty" id="courses-empty">
+                      <span class="courses-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3.5" y="4" width="17" height="14" rx="3"/>
+                          <path d="M3.5 9h17M8 21h8"/>
+                        </svg>
+                      </span>
+                      <div class="courses-empty-title">还没有课程数据</div>
+                      <div class="courses-empty-sub">登录后点击「刷新」同步课程列表</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="progress-block">
+                  <div class="progress-head">
+                    <div class="progress-label">实时进度<span class="live-dot" id="live-dot" title="运行中"></span></div>
+                    <div class="progress-percent" id="progress-percent">--</div>
+                  </div>
+                  <div class="current-status">
+                    <div class="current-course" id="current-course"></div>
+                    <div class="current-video" id="current-video"></div>
+                  </div>
+                  <div class="progress-row">
+                    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+                  </div>
+                  <div class="progress-caption" id="progress-caption">尚未开始</div>
+                  <div class="captcha-alert" id="captcha-alert" hidden>
+                    <div class="captcha-copy">
+                      <div class="captcha-title">检测到人机验证</div>
+                      <div class="captcha-sub" id="captcha-status">在打开的登录页完成验证后，回来重新运行</div>
+                    </div>
+                    <button id="btn-captcha-open" class="btn btn-primary btn-sm">打开验证页</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-side">
+              <div class="card login-card" id="login-card">
+                <div class="card-head">
+                  <div class="section-title">登录状态</div>
+                  <div class="login-status-group">
+                    <div class="status-chip" id="login-status">未登录</div>
+                  </div>
+                </div>
+                <div class="login-body">
+                  <div class="qr-box" id="qr-box">
+                    <img id="qr-img" alt="登录二维码" hidden>
+
+                    <div class="qr-art qr-idle" aria-hidden="true">
+                      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="8" y="8" width="13" height="13" rx="2.6"/>
+                        <rect x="27" y="8" width="13" height="13" rx="2.6"/>
+                        <rect x="8" y="27" width="13" height="13" rx="2.6"/>
+                        <path d="M27 27h5.5v5.5H27z" fill="currentColor" stroke="none"/>
+                        <path d="M36.5 27H40M27 36.5V40M36.5 36.5H40V40h-3.5z" fill="currentColor" stroke="none"/>
+                      </svg>
+                    </div>
+
+                    <div class="qr-art qr-loader" aria-hidden="true">
+                      <svg viewBox="0 0 56 56" fill="none">
+                        <circle class="qr-loader-ring" cx="28" cy="28" r="22" stroke="currentColor" stroke-opacity=".22" stroke-width="1.6" stroke-dasharray="1.5 5"/>
+                        <circle class="qr-loader-arc" cx="28" cy="28" r="22" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="32 106"/>
+                        <circle class="qr-loader-arc qr-loader-arc-2" cx="28" cy="28" r="14" stroke="currentColor" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="12 76"/>
+                        <circle cx="28" cy="28" r="2.4" fill="currentColor"/>
+                      </svg>
+                    </div>
+
+                    <div class="qr-art qr-standby" aria-hidden="true">
+                      <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="28" cy="28" r="19" stroke-opacity=".22"/>
+                        <path d="M19 28.5l6.2 6.2 11.5-12.5"/>
+                      </svg>
+                    </div>
+
+                    <div id="qr-placeholder" class="qr-placeholder">点击"开始登录"生成二维码</div>
+                  </div>
+                  <div class="login-copy">
+                    <div class="login-lead">智慧树账号</div>
+                    <p class="login-desc">使用「智慧树」App 扫码，登录后可同步课程与学习进度。</p>
+                    <div class="login-actions">
+                      <button id="btn-login" class="btn btn-primary btn-block" title="点击生成二维码，用「智慧树」App 扫码登录">开始登录</button>
+                      <button id="btn-cancel-login" class="btn btn-secondary btn-block" hidden>取消登录</button>
+                      <button id="btn-relogin" class="btn btn-secondary btn-block" hidden>重新登录</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="run-card">
+                <button id="btn-run-toggle" class="btn btn-run btn-primary">开始运行</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="tab-panel" id="panel-logs">
+          <div class="page-head">
+            <div class="page-head-copy">
+              <h1 class="page-title">日志</h1>
+              <p class="page-sub">运行与登录的实时输出，仅保存在本次会话</p>
+            </div>
+          </div>
+
+          <div class="card log-card">
+            <div class="log-toolbar">
+              <span class="log-meta" id="log-meta">0 行</span>
+              <button id="btn-log-autoscroll" class="log-btn active" aria-pressed="true">自动滚动</button>
+              <button id="btn-log-clear" class="log-btn">清空</button>
+            </div>
+            <div class="log-view" id="log-view">
+              <div class="log-empty" id="log-empty">
+                <div class="log-empty-title">暂无日志</div>
+                <div class="log-empty-sub">登录或开始运行后，输出会实时显示在这里</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="panel-settings">
+          <div class="page-head">
+            <div class="page-head-copy">
+              <h1 class="page-title">设置</h1>
+              <p class="page-sub">调整播放与完成判定参数，建议保持默认</p>
+            </div>
+          </div>
+
+          <div class="settings-body">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-head-copy">
+                  <div class="section-title">运行参数</div>
+                  <div class="hint">留空表示使用程序内置的推荐值，不建议超过 8 倍速。</div>
+                </div>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">播放倍速</span>
+                  <span class="field-input">
+                    <input type="number" id="opt-speed" class="text-input" step="0.05" min="0.1" placeholder="默认最高">
+                    <span class="field-unit">x</span>
+                  </span>
+                  <span class="field-help">视频播放速度</span>
+                </label>
+                <label class="field">
+                  <span class="field-label">完成阈值</span>
+                  <span class="field-input">
+                    <input type="number" id="opt-threshold" class="text-input" step="0.01" min="0" max="1" placeholder="默认 0.91">
+                  </span>
+                  <span class="field-help">进度达到该比例视为完成</span>
+                </label>
+                <label class="field">
+                  <span class="field-label">单课时限</span>
+                  <span class="field-input">
+                    <input type="number" id="opt-limit" class="text-input" step="1" min="0" placeholder="0 = 不限">
+                    <span class="field-unit">分钟</span>
+                  </span>
+                  <span class="field-help">超时后跳过当前课时</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-head-copy">
+                  <div class="section-title">浏览器验证凭据</div>
+                  <div class="hint">检测到人机验证时用于自动填写登录页；仅保存在本机 config.json。</div>
+                </div>
+              </div>
+
+              <div class="field-grid field-grid-2">
+                <label class="field">
+                  <span class="field-label">账号</span>
+                  <span class="field-input">
+                    <input type="text" id="opt-username" class="text-input" autocomplete="off" placeholder="手机号 / 学号">
+                  </span>
+                  <span class="field-help">智慧树登录账号</span>
+                </label>
+                <label class="field">
+                  <span class="field-label">密码</span>
+                  <span class="field-input">
+                    <input type="password" id="opt-password" class="text-input" autocomplete="off" placeholder="登录密码">
+                  </span>
+                  <span class="field-help">用于自动填写，不会上传</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="card about-card">
+              <div class="about-brand">
+                <span class="about-mark"><img src="assets/logo.png" alt=""></span>
+                <div class="about-copy">
+                  <div class="about-name">ZHSHelper</div>
+                  <div class="about-desc">智慧树自动学习助手 · 登录凭据仅保存在本机</div>
+                </div>
+              </div>
+              <div class="about-meta">
+                <span class="about-version" id="about-version"></span>
+                <span class="status-sep"></span>
+                <span>© 2026 Sensu</span>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button id="btn-save-settings" class="btn btn-primary">保存设置</button>
+              <button id="btn-visit-site" class="btn btn-secondary">访问我的网站</button>
+              <span class="save-hint" id="save-hint"></span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <footer class="statusbar">
+      <span class="status-left"><span id="status-text">© 2026 Sensu</span><span class="status-sep"></span><span class="status-brand">ZHSHelper</span></span>
+      <span id="version-text"></span>
+    </footer>
+
   </div>
 </div>
 
@@ -142,7 +363,7 @@
   window.pywebview = {
     api: {
       get_bootstrap: function () {
-        return Promise.resolve({ version: "selftest", loggedIn: true, settings: {}, state: {} });
+        return Promise.resolve({ version: "selftest", loggedIn: true, settings: {}, state: { theme: "light" } });
       },
       get_courses: function () {
         return Promise.resolve([
@@ -156,6 +377,8 @@
       start_run: function () { return Promise.resolve({ ok: true }); },
       stop_run: function () { return Promise.resolve(); },
       save_settings: function () { return Promise.resolve(); },
+      save_theme: function () { return Promise.resolve({ ok: true }); },
+      open_captcha_flow: function () { return Promise.resolve({ ok: true, inApp: true, url: "https://studyh5.zhihuishu.com/" }); },
       open_url: function () {}
     }
   };

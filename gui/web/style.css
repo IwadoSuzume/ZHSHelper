@@ -1,40 +1,263 @@
+/* ==========================================================================
+   ZHSHelper UI — light-first, dark-mode ready
+
+   Layout: 1080x620 fixed canvas, uniformly scaled by app.js applyScale().
+   Every color lives in a custom property below, so [data-theme="dark"]
+   only swaps tokens - no component rules are duplicated per theme.
+   Only index.html / style.css / app.js / assets/logo.png ship (see
+   gui/resources.py): no font files, no external images, no CDNs.
+   ========================================================================== */
+
 :root {
-  --bg: #141317;
-  --card: #201F24;
-  --card-alt: #26252B;
-  --rail-pill: #726B73;
-  --border: #2C2A31;
-  --accent: #E7C1C8;
-  --accent-strong: #D99AA4;
-  --accent-ink: #362F3A;
-  --text: #F1EEF2;
-  --text-muted: #99939D;
-  --ok: #8BD17C;
-  --bad: #E5626A;
-  --gold: #E3B341;
+  color-scheme: light;
+
+  --page-flat: #F2F2F4;
+  --app-bg: #F2F2F4;
+  --grid-line: rgba(23, 23, 26, 0.035);
+  --grid-opacity: 0;
+
+  /* floating navigation rail (stays dark in both themes) */
+  --rail-bg: #111113;
+  --rail-border: rgba(255, 255, 255, 0.06);
+  --rail-shadow: 0 26px 50px -30px rgba(15, 15, 20, 0.55), 0 4px 14px rgba(15, 15, 20, 0.18);
+  --rail-tile-bg: rgba(255, 255, 255, 0.07);
+  --rail-tile-border: rgba(255, 255, 255, 0.09);
+  --rail-icon: #A7A7AF;
+  --rail-icon-hover: #FFFFFF;
+  --rail-hover-bg: rgba(255, 255, 255, 0.07);
+  --rail-active-bg: #2D2D31;
+  --rail-active-fg: #FFFFFF;
+  --rail-divider: rgba(255, 255, 255, 0.09);
+
+  /* text */
+  --text: #17171A;
+  --text-dim: #4B4B53;
+  --text-muted: #8B8B95;
+  --text-faint: #ADADB6;
+
+  /* surfaces */
+  --card-bg: #FFFFFF;
+  --card-border: #EBEBEF;
+  --card-shadow: 0 1px 2px rgba(16, 16, 20, 0.04), 0 24px 44px -34px rgba(16, 16, 20, 0.30);
+  --card-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --hover-bg: #F7F7F9;
+  --selected-bg: #F0F0F3;
+  --hairline: #F0F0F3;
+
+  /* segmented control */
+  --seg-bg: #F4F4F6;
+  --seg-border: #ECECEF;
+  --seg-fg: #6E6E77;
+  --seg-hover: #E9E9ED;
+  --seg-accent: #17171A;
+
+  /* buttons */
+  --primary-bg: #17171A;
+  --primary-hover-bg: #000000;
+  --primary-border: #17171A;
+  --primary-fg: #FFFFFF;
+  --primary-shadow: 0 6px 18px -10px rgba(17, 17, 20, 0.55);
+  --primary-disabled-bg: #EDEDF0;
+  --secondary-bg: #F4F4F6;
+  --secondary-hover: #ECECEF;
+  --secondary-border: #E7E7EB;
+  --secondary-fg: #3E3E45;
+  --warn-bg: #FBEDEC;
+  --warn-border: #F1D5D2;
+  --warn-fg: #C2473F;
+  --warn-hover-bg: #D9544B;
+  --warn-hover-fg: #FFFFFF;
+
+  /* inputs */
+  --field-bg: #F7F7F9;
+  --field-border: #E8E8ED;
+  --field-hover-border: #D9D9E0;
+  --field-focus: #17171A;
+  --field-focus-ring: rgba(23, 23, 26, 0.10);
+
+  /* progress */
+  --track: #E9E9ED;
+  --fill-bg: linear-gradient(90deg, #17171A, #3F3F47);
+  --fill-glow: none;
+  --percent: #17171A;
+
+  /* status */
+  --chip-bg: #F4F4F6;
+  --chip-border: #ECECEF;
+  --ok: #1E9C66;
+  --ok-bg: #EAF6F0;
+  --ok-border: #D2EBDF;
+  --bad: #C94A42;
+  --bad-bg: #FBEDEC;
+  --bad-border: #F1D6D3;
+  --gold: #A3761C;
+  --gold-bg: #FAF4E4;
+  --gold-border: #EDDFC0;
+
+  /* QR module */
+  --qr-idle-bg: #FAFAFB;
+  --qr-idle-border: #E3E3E9;
+  --qr-has-bg: #FFFFFF;
+  --qr-has-border: #ECECEF;
+  --qr-standby-bg: #F1F8F4;
+  --qr-standby-border: #D8EBE0;
+  --qr-fg: #17171A;
+  --qr-muted: #8B8B95;
+
+  /* checkbox */
+  --check-bg: #17171A;
+  --check-border: #D3D3DA;
+  --check-hover-border: #A8A8B3;
+  --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+
+  /* splash + misc */
+  --splash-bg: rgba(244, 244, 246, 0.94);
+  --splash-spinner-track: rgba(23, 23, 26, 0.10);
+  --splash-halo: rgba(23, 23, 26, 0.05);
+  --scroll-thumb: rgba(23, 23, 26, 0.16);
+  --scroll-thumb-hover: rgba(23, 23, 26, 0.32);
+  --focus-ring: rgba(23, 23, 26, 0.18);
+  --statusbar-border: #E7E7EB;
+  --empty-icon-bg: #F4F4F6;
+  --empty-icon-border: #ECECEF;
+  --empty-icon-fg: #6E6E77;
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --page-flat: #111113;
+  --app-bg: #111113;
+  --grid-line: rgba(255, 255, 255, 0);
+  --grid-opacity: 0;
+
+  --rail-bg: #0C0C0E;
+  --rail-border: rgba(255, 255, 255, 0.06);
+  --rail-shadow: 0 26px 50px -30px rgba(0, 0, 0, 0.85), 0 4px 14px rgba(0, 0, 0, 0.35);
+  --rail-tile-bg: rgba(255, 255, 255, 0.06);
+  --rail-tile-border: rgba(255, 255, 255, 0.08);
+  --rail-icon: #8E8E97;
+  --rail-icon-hover: #FFFFFF;
+  --rail-hover-bg: rgba(255, 255, 255, 0.07);
+  --rail-active-bg: #26262B;
+  --rail-active-fg: #FFFFFF;
+  --rail-divider: rgba(255, 255, 255, 0.08);
+
+  --text: #F2F2F4;
+  --text-dim: #BDBDC5;
+  --text-muted: #8C8C96;
+  --text-faint: #66666F;
+
+  --card-bg: #1A1A1E;
+  --card-border: #2A2A31;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 24px 44px -34px rgba(0, 0, 0, 0.9);
+  --card-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --hover-bg: #222227;
+  --selected-bg: #26262C;
+  --hairline: #26262C;
+
+  --seg-bg: #202025;
+  --seg-border: #2B2B32;
+  --seg-fg: #98989F;
+  --seg-hover: #2A2A31;
+  --seg-accent: #F2F2F4;
+
+  --primary-bg: #F2F2F4;
+  --primary-hover-bg: #FFFFFF;
+  --primary-border: #F2F2F4;
+  --primary-fg: #111113;
+  --primary-shadow: 0 8px 22px -14px rgba(0, 0, 0, 0.9);
+  --primary-disabled-bg: #26262B;
+  --secondary-bg: #222227;
+  --secondary-hover: #2B2B32;
+  --secondary-border: #303038;
+  --secondary-fg: #C6C6CE;
+  --warn-bg: rgba(255, 107, 122, 0.12);
+  --warn-border: rgba(255, 107, 122, 0.26);
+  --warn-fg: #FF97A2;
+  --warn-hover-bg: #FF6B7A;
+  --warn-hover-fg: #1C0A0D;
+
+  --field-bg: #151518;
+  --field-border: #2B2B32;
+  --field-hover-border: #3A3A43;
+  --field-focus: #F2F2F4;
+  --field-focus-ring: rgba(242, 242, 244, 0.12);
+
+  --track: #2A2A31;
+  --fill-bg: linear-gradient(90deg, #F2F2F4, #CFCFD8);
+  --fill-glow: none;
+  --percent: #F2F2F4;
+
+  --chip-bg: #202025;
+  --chip-border: #2B2B32;
+  --ok: #45D6A4;
+  --ok-bg: rgba(69, 214, 164, 0.10);
+  --ok-border: rgba(69, 214, 164, 0.20);
+  --bad: #FF6B7A;
+  --bad-bg: rgba(255, 107, 122, 0.10);
+  --bad-border: rgba(255, 107, 122, 0.22);
+  --gold: #F2C14E;
+  --gold-bg: rgba(242, 193, 78, 0.10);
+  --gold-border: rgba(242, 193, 78, 0.20);
+
+  --qr-idle-bg: #151518;
+  --qr-idle-border: #33333B;
+  --qr-has-bg: #F2F4FC;
+  --qr-has-border: #3A3A43;
+  --qr-standby-bg: rgba(69, 214, 164, 0.08);
+  --qr-standby-border: rgba(69, 214, 164, 0.22);
+  --qr-fg: #F2F2F4;
+  --qr-muted: #8C8C96;
+
+  --check-bg: #F2F2F4;
+  --check-border: #3A3A43;
+  --check-hover-border: #6E6E78;
+  --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111113' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+
+  --splash-bg: rgba(17, 17, 19, 0.97);
+  --splash-spinner-track: rgba(255, 255, 255, 0.10);
+  --splash-halo: rgba(255, 255, 255, 0.05);
+  --scroll-thumb: rgba(255, 255, 255, 0.14);
+  --scroll-thumb-hover: rgba(255, 255, 255, 0.30);
+  --focus-ring: rgba(242, 242, 244, 0.28);
+  --statusbar-border: #232329;
+  --empty-icon-bg: #222227;
+  --empty-icon-border: #2B2B32;
+  --empty-icon-fg: #8C8C96;
 }
 
 * { box-sizing: border-box; }
 
-/* Flat, matches .app-shell's own background below - when the window's aspect
-   ratio doesn't match the fixed 1080x620 canvas, applyScale() letterboxes
-   it, leaving this background visible in the margin. A plain color match is
-   enough here (unlike a gradient) since both are the same flat tone. */
+/* Project rule: `hidden` always wins over component display rules
+   (.btn-block / .qr-box img set display, which would otherwise show
+   elements app.js hides with the attribute). */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--page-flat);
   color: var(--text);
-  font-family: "Segoe UI", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "SF Pro Display", "Hiragino Sans GB", "Helvetica Neue",
+               "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
   font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
   user-select: none;
+  transition: background .2s ease;
 }
 
-/* The whole UI is designed at a fixed 1080x620 canvas and uniformly
+input, textarea { user-select: text; }
+
+/* The whole UI is authored at a fixed 1080x620 canvas and uniformly
    transform-scaled (see app.js applyScale()) to fit whatever size the
-   window actually is - "等比缩放": resizing the window scales everything
-   together instead of reflowing, and never distorts the aspect ratio. */
+   window actually is - resizing scales everything together instead of
+   reflowing, and never distorts the aspect ratio. */
 .app-shell {
   position: absolute;
   top: 0;
@@ -44,9 +267,149 @@ html, body {
   transform-origin: top left;
   z-index: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 12px;
+  padding: 10px;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--app-bg);
+  transition: background .25s ease;
+}
+
+/* Faint engineering grid - dark theme only (--grid-opacity: 0 in light). */
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--grid-opacity);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 52px 52px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 0%, transparent 78%);
+}
+
+.app-shell > * { position: relative; z-index: 1; }
+
+/* ---------------- navigation rail ---------------- */
+
+.rail {
+  flex: none;
+  width: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 12px;
+  border-radius: 14px;
+  border: 1px solid var(--rail-border);
+  background: var(--rail-bg);
+  box-shadow: var(--rail-shadow);
+  transition: background .25s ease;
+}
+
+.rail-brand {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--rail-tile-bg);
+  border: 1px solid var(--rail-tile-border);
+}
+
+.rail-brand img { width: 24px; height: 24px; object-fit: contain; }
+
+.rail-divider {
+  flex: none;
+  width: 28px;
+  height: 1px;
+  margin: 12px 0;
+  background: var(--rail-divider);
+}
+
+.rail-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.nav-rail .tab,
+.rail .tab {
+  position: relative;
+  flex: none;
+  width: 60px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--rail-icon);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease;
+}
+
+.rail .tab:hover { background: var(--rail-hover-bg); color: var(--rail-icon-hover); }
+
+.rail .tab.active {
+  background: var(--rail-active-bg);
+  color: var(--rail-active-fg);
+}
+
+.tab-icon { width: 19px; height: 19px; }
+
+.tab-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: inherit;
+}
+
+.rail-foot {
+  margin-top: auto;
+  flex: none;
+  width: 44px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rail-divider);
+  display: flex;
+  justify-content: center;
+}
+
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--rail-icon);
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease;
+}
+
+.theme-toggle:hover { background: var(--rail-hover-bg); color: var(--rail-icon-hover); }
+
+.theme-icon { width: 17px; height: 17px; }
+.theme-icon-sun { display: none; }
+[data-theme="dark"] .theme-icon-moon { display: none; }
+[data-theme="dark"] .theme-icon-sun { display: block; }
+
+/* ---------------- main column ---------------- */
+
+.main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------------- title bar ---------------- */
@@ -54,37 +417,32 @@ html, body {
 .titlebar {
   display: flex;
   align-items: center;
-  height: 46px;
+  height: 42px;
   flex: none;
-  padding: 0 6px;
+  padding: 0 2px 0 6px;
 }
 
-.titlebar-drag {
-  flex: 1;
-  height: 100%;
-}
+.titlebar-drag { flex: 1; height: 100%; }
 
-.titlebar-buttons {
-  display: flex;
-  align-items: center;
-}
+.titlebar-buttons { display: flex; align-items: center; gap: 2px; }
 
 .title-btn {
-  width: 42px;
-  height: 32px;
+  width: 40px;
+  height: 28px;
   border: 0;
   background: transparent;
   color: var(--text-muted);
   font-family: "Segoe MDL2 Assets", "Segoe UI Symbol", sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 6px;
+  transition: background .15s ease, color .15s ease;
 }
 
-.title-btn:hover { background: rgba(255,255,255,.08); color: var(--text); }
-.title-btn-close:hover { background: #E81123; color: #fff; }
+.title-btn:hover { background: var(--hover-bg); color: var(--text); }
+.title-btn-close:hover { background: #E5484D; color: #fff; }
 
-/* ---------------- nav rail ---------------- */
+/* ---------------- splash ---------------- */
 
 .shell-body {
   position: relative;
@@ -95,11 +453,8 @@ html, body {
   overflow: hidden;
 }
 
-/* ---------------- splash ---------------- */
-
-/* Covers nav-rail + tab-panels only (not the titlebar above it), so the
-   custom min/close buttons stay usable even if course loading takes a
-   while - see onSplashReady() in app.js for when this fades out. */
+/* Covers the content area only (not rail/titlebar), so the custom
+   min/close buttons stay usable while the splash is up. */
 .splash {
   position: absolute;
   inset: 0;
@@ -108,88 +463,70 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  background: var(--bg);
+  background: var(--splash-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: opacity .3s ease;
 }
 
-.splash.hide {
-  opacity: 0;
+.splash.hide { opacity: 0; pointer-events: none; }
+
+.splash-halo {
+  position: absolute;
+  width: 420px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--splash-halo), transparent 68%);
+  filter: blur(6px);
   pointer-events: none;
 }
 
 .splash-mark {
+  position: relative;
   flex: none;
-  width: 108px;
-  height: 108px;
+  width: 92px;
+  height: 92px;
   object-fit: contain;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.12));
+  animation: splash-in .6s var(--ease) both;
 }
 
 .splash-title {
-  font-size: 22px;
+  position: relative;
+  margin-top: 18px;
+  font-size: 20px;
   font-weight: 700;
+  letter-spacing: 0.02em;
   color: var(--text);
+  animation: splash-in .6s .06s var(--ease) both;
+}
+
+.splash-sub {
+  position: relative;
+  margin-top: 5px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  animation: splash-in .6s .12s var(--ease) both;
 }
 
 .splash-spinner {
+  position: relative;
   flex: none;
-  width: 32px;
-  height: 32px;
+  margin-top: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 4px solid var(--card-alt);
-  border-top-color: var(--accent);
-  animation: splash-spin .8s linear infinite;
+  border: 2px solid var(--splash-spinner-track);
+  border-top-color: var(--text);
+  animation: splash-spin .85s linear infinite;
 }
 
 @keyframes splash-spin { to { transform: rotate(360deg); } }
-
-.nav-rail {
-  flex: none;
-  width: 72px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px 0 14px;
-  gap: 10px;
+@keyframes splash-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-.brand-badge {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 16px;
-  background: var(--card-alt);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.brand-badge img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
-
-.nav-rail .tab {
-  flex: none;
-  width: 48px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: 16px;
-  cursor: pointer;
-  transition: background .15s ease, color .15s ease;
-}
-
-.nav-rail .tab:hover { color: var(--text); background: rgba(255,255,255,.06); }
-.nav-rail .tab.active { background: var(--rail-pill); color: #fff; }
-
-.tab-icon { width: 22px; height: 22px; }
 
 /* ---------------- panels ---------------- */
 
@@ -198,43 +535,85 @@ html, body {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  padding: 14px 16px;
+  padding: 12px 12px 12px 2px;
 }
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.page-head-copy { min-width: 0; }
 
 .page-title {
-  flex: none;
-  font-size: 20px;
+  margin: 0;
+  font-size: 22px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text);
-  margin: 0 0 4px;
+  line-height: 1.25;
 }
 
-/* The dashboard is a fixed-height flex column so the OUTER page never
-   scrolls - only the small boxes that opt into it (course lists, side
-   column as a last resort) scroll internally. Settings has no such
-   constraint and just scrolls normally like any settings page. */
-.tab-panel { display: none; height: 100%; min-height: 0; }
-.tab-panel.active { display: flex; flex-direction: column; gap: 12px; }
-#panel-settings.active { display: block; overflow-y: auto; }
-#panel-settings .page-title { margin-bottom: 14px; }
+.page-sub {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-/* Fixed height (not flex-grow) even though dashboard-grid is the dashboard's
-   only content now - letting it stretch to fill the panel just left the
-   course list and its mostly-empty rows looking stretched-out and sparse.
-   A capped height keeps it a reasonable size; the panel just carries a bit
-   of empty space below it instead. */
+.page-head-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+.tab-panel { display: none; height: 100%; min-height: 0; }
+.tab-panel.active {
+  display: flex;
+  flex-direction: column;
+  animation: panel-in .3s var(--ease);
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#panel-settings.active { display: block; overflow-y: auto; }
+
 .dashboard-grid {
-  flex: 0 0 450px;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 16px;
 }
 
-/* col-main/col-side stretch (flex row default) to the same height, and each
-   pins its last element to the bottom via margin-top:auto - that's what
-   keeps the run card's bottom edge flush with the course list card's. */
 .col-main {
-  flex: 1.6 1 0;
+  flex: 1 1 0;
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -242,237 +621,403 @@ html, body {
 }
 
 .col-side {
-  flex: 1 1 0;
+  flex: 0 0 330px;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  /* Falls back to its own scrollbar rather than the whole page if the
-     stacked cards (login/qr/run) ever don't fit at a small window size -
-     the page itself must never be the thing that scrolls. */
+  gap: 14px;
   overflow-y: auto;
 }
 
-/* No .card class on this one (deliberately) - just the button, no
-   surrounding title/border/background. margin-top:auto keeps it pinned to
-   col-side's bottom edge (unaffected by dropping the card chrome, since
-   that positioning came from this rule, not from .card). */
-.run-card { margin-top: auto; }
-
-.col-main > .card, .col-side > .card { margin-bottom: 0; }
+/* ---------------- cards ---------------- */
 
 .card {
-  background: var(--card);
-  border: 0;
-  border-radius: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
   padding: 16px 18px;
-  margin-bottom: 12px;
+  box-shadow: var(--card-inset), var(--card-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: background .25s ease, border-color .25s ease;
 }
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.card-head-copy { min-width: 0; }
 
 .section-title {
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 650;
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
   color: var(--text);
-  margin-bottom: 10px;
-}
-
-.row-between {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
+  line-height: 1.35;
 }
 
 .hint {
   color: var(--text-muted);
-  font-size: 11px;
-  line-height: 1.6;
-  margin: 6px 0 0;
+  font-size: 10.5px;
+  line-height: 1.55;
+  margin: 3px 0 0;
 }
 
 /* ---------------- buttons ---------------- */
 
-.btn-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-  align-items: center;
-}
-
-.btn-row-tight { margin-top: 0; gap: 8px; }
+.btn-row { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
 
 .btn {
-  border: 0;
-  border-radius: 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
   font-weight: 600;
-  font-size: 13px;
-  padding: 10px 18px;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  padding: 9px 16px;
+  cursor: pointer;
+  color: var(--text);
+  background: transparent;
+  transition: background .16s ease, border-color .16s ease, color .16s ease,
+              box-shadow .16s ease, transform .12s var(--ease);
+}
+
+.btn:active { transform: translateY(1px) scale(0.995); }
+
+.btn-block { width: 100%; display: block; }
+
+.btn-primary {
+  background: var(--primary-bg);
+  border-color: var(--primary-border);
+  color: var(--primary-fg);
+  box-shadow: var(--primary-shadow);
+}
+.btn-primary:hover { background: var(--primary-hover-bg); }
+.btn-primary:disabled {
+  background: var(--primary-disabled-bg);
+  border-color: transparent;
+  color: var(--text-faint);
+  box-shadow: none;
+  cursor: default;
+}
+
+.btn-secondary {
+  background: var(--secondary-bg);
+  border-color: var(--secondary-border);
+  color: var(--secondary-fg);
+}
+.btn-secondary:hover { background: var(--secondary-hover); color: var(--text); }
+.btn-secondary:disabled { color: var(--text-faint); cursor: default; background: var(--secondary-bg); }
+
+.btn-warn {
+  background: var(--warn-bg);
+  border-color: var(--warn-border);
+  color: var(--warn-fg);
+}
+.btn-warn:hover { background: var(--warn-hover-bg); border-color: var(--warn-hover-bg); color: var(--warn-hover-fg); }
+.btn-warn:disabled { color: var(--text-faint); background: var(--secondary-bg); border-color: transparent; cursor: default; }
+
+/* The run button stands alone (no card chrome around it), so it carries its
+   own visual weight instead of a title + border/background doing that job. */
+.btn-run {
+  width: 100%;
+  height: 54px;
+  padding: 0 18px;
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  border-radius: 10px;
+}
+
+.run-card { margin-top: auto; flex: none; }
+
+/* ---------------- segmented control ---------------- */
+
+.seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--seg-bg);
+  border: 1px solid var(--seg-border);
+  flex: none;
+}
+
+.seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--seg-fg);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 9px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background .15s ease, color .15s ease;
 }
 
-.btn-sm { padding: 7px 13px; font-size: 12px; border-radius: 12px; }
-
-/* The run button stands alone (no card chrome around it - see .run-card),
-   so it carries its own visual weight instead of a title + border/background
-   doing that job. Full stadium shape, like an extended FAB. */
-.btn-run { width: 100%; padding: 16px 18px; font-size: 15px; font-weight: 700; border-radius: 999px; }
-
-.btn-primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-}
-.btn-primary:hover { background: var(--accent-strong); }
-.btn-primary:active { filter: brightness(.94); }
-.btn-primary:disabled { background: var(--card-alt); color: var(--text-muted); cursor: default; }
-
-.btn-secondary {
-  background: var(--card-alt);
-  color: var(--text);
-}
-.btn-secondary:hover { background: #302E36; }
-.btn-secondary:disabled { color: var(--text-muted); cursor: default; }
-
-.btn-warn {
-  background: rgba(229,98,106,.14);
-  color: var(--bad);
-}
-.btn-warn:hover { background: var(--bad); color: #241012; }
-.btn-warn:disabled { color: var(--text-muted); background: var(--card-alt); cursor: default; }
+.seg-btn svg { width: 12px; height: 12px; }
+.seg-btn:hover { background: var(--seg-hover); color: var(--text); }
+.seg-btn-accent { color: var(--seg-accent); }
 
 /* ---------------- inputs ---------------- */
 
-.text-input, .select-input {
+.text-input {
   width: 100%;
-  background: var(--card-alt);
+  background: var(--field-bg);
   color: var(--text);
-  border: 0;
-  border-radius: 14px;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
   padding: 10px 12px;
   font-size: 13px;
-  margin-top: 6px;
   font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
 }
 
-.text-input:focus, .select-input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+.text-input::placeholder { color: var(--text-faint); }
+.text-input:hover { border-color: var(--field-hover-border); }
+.text-input:focus {
+  outline: none;
+  border-color: var(--field-focus);
+  box-shadow: 0 0 0 3px var(--field-focus-ring);
 }
 
-.field-row {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
+/* cleaner number fields: no spinners */
+.text-input::-webkit-outer-spin-button,
+.text-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 4px;
 }
+
+.field-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
 .field-label {
-  flex: 1;
-  min-width: 160px;
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
 }
 
-/* ---------------- switch ---------------- */
+.field-input { position: relative; display: flex; align-items: center; }
+.field-input .text-input { padding-right: 34px; }
 
-.switch {
-  width: 46px;
-  height: 26px;
-  border-radius: 999px;
-  border: 0;
-  background: #3F3C43;
-  position: relative;
-  cursor: pointer;
-  transition: background .18s ease;
-  flex: none;
-}
-
-.switch[aria-checked="true"] { background: var(--accent); }
-
-.switch-thumb {
+.field-unit {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--text-muted);
-  transition: transform .18s cubic-bezier(.33,1,.68,1), background .18s ease;
+  right: 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+  pointer-events: none;
 }
 
-.switch[aria-checked="true"] .switch-thumb { transform: translateX(20px); background: var(--accent-ink); }
+.field-help { font-size: 10px; color: var(--text-faint); line-height: 1.5; }
 
 /* ---------------- login ---------------- */
 
-/* Chip + whichever single action button applies (开始登录 / 取消登录 /
-   重新登录 - app.js shows exactly one of the three at a time) all share this
-   one row instead of a separate hint paragraph + button row below the
-   title, which is what made the not-logged-in state take three lines. */
 .login-status-group {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
 }
 
-/* compact (logged in): only 重新登录 is a valid action, hide 开始登录 even
-   though its own `hidden` attribute may say otherwise (see onLoginFinished -
-   it's restored unconditionally there since the failed/cancelled path needs
-   it back, and this class-based rule is what actually keeps it hidden once
-   logged in). */
-.login-card.compact #btn-login {
-  display: none;
+.login-card {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+.login-card .card-head { position: relative; margin-bottom: 0; }
+
+.login-card.compact #btn-login { display: none; }
+
+.login-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0 2px;
+}
+
+/* ---------------- QR module ---------------- */
 
 .qr-box {
   position: relative;
-  margin: 8px auto 0;
+  flex: none;
+  width: 132px;
+  height: 132px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 118px;
-  height: 118px;
-  background: var(--card-alt);
-  border-radius: 16px;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--qr-idle-bg);
+  border: 1px dashed var(--qr-idle-border);
+  color: var(--qr-muted);
+  overflow: hidden;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
 }
 
-.qr-box img { width: 100%; height: 100%; padding: 12px; }
+.qr-box.is-loading,
+.qr-box.is-standby { border-style: solid; }
+
+.qr-box.is-standby {
+  background: var(--qr-standby-bg);
+  border-color: var(--qr-standby-border);
+  color: var(--ok);
+}
+
+/* a real QR needs a light, quiet background to scan reliably
+   (app.js toggles .has-qr alongside the image's hidden attribute) */
+.qr-box.has-qr {
+  padding: 9px;
+  background: var(--qr-has-bg);
+  border: 1px solid var(--qr-has-border);
+  box-shadow: 0 12px 28px -20px rgba(0, 0, 0, 0.35);
+}
+
+.qr-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+.qr-art { display: none; flex: none; width: 46px; height: 46px; color: var(--qr-fg); }
+.qr-art svg { width: 46px; height: 46px; display: block; }
+.qr-art.qr-loader { width: 54px; height: 54px; }
+.qr-art.qr-loader svg { width: 54px; height: 54px; }
+
+/* idle: a quiet QR glyph */
+.qr-box:not(.has-qr):not(.is-loading):not(.is-standby) .qr-idle { display: block; }
+
+/* generating: radar sweep */
+.qr-box.is-loading .qr-loader { display: block; }
+
+.qr-box.is-loading { color: var(--text-dim); }
+.qr-box.is-loading .qr-art { color: var(--qr-fg); }
+
+.qr-loader { animation: qr-breathe 2.4s ease-in-out infinite; }
+
+@keyframes qr-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.045); opacity: .9; }
+}
+
+.qr-loader-arc {
+  transform-origin: center;
+  animation: qr-spin 1.15s linear infinite;
+}
+
+.qr-loader-arc-2 {
+  animation: qr-spin-rev 2.8s linear infinite;
+}
+
+.qr-loader-ring {
+  transform-origin: center;
+  animation: qr-spin 12s linear infinite;
+}
+
+@keyframes qr-spin { to { transform: rotate(360deg); } }
+@keyframes qr-spin-rev { to { transform: rotate(-360deg); } }
+
+/* logged in: standby check */
+.qr-box.is-standby .qr-standby { display: block; }
 
 .qr-placeholder {
-  color: var(--text-muted);
-  font-size: 12px;
+  max-width: 108px;
   text-align: center;
-  padding: 0 20px;
+  font-size: 10px;
+  line-height: 1.55;
+  color: inherit;
 }
+
+.qr-box.has-qr .qr-placeholder { display: none; }
+
+.login-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.login-lead {
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+.login-desc {
+  margin: 0;
+  max-width: 230px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.login-actions { width: 100%; margin-top: 6px; }
 
 .status-chip {
   display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--card-alt);
+  max-width: 200px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
-.status-chip.ok { color: var(--ok); background: rgba(139,209,124,.14); }
-.status-chip.bad { color: var(--bad); background: rgba(229,98,106,.14); }
-.status-chip.pending { color: var(--gold); background: rgba(227,179,65,.14); }
+.status-chip::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .85;
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+
+.status-chip.ok { color: var(--ok); background: var(--ok-bg); border-color: var(--ok-border); }
+.status-chip.bad { color: var(--bad); background: var(--bad-bg); border-color: var(--bad-border); }
+.status-chip.pending { color: var(--gold); background: var(--gold-bg); border-color: var(--gold-border); }
 
 /* ---------------- courses ---------------- */
 
-/* Fills col-main's stretched height; never scrolls itself (overflow:hidden)
-   - only its two .course-list boxes below do, once their grown height still
-   isn't enough for all the rows. The progress readout keeps a small fixed
-   gap above it rather than being pushed around, since the lists above it
-   now absorb all the card's leftover height themselves.
-   flex:1 1 0 (not the equivalent-looking `flex:1` shorthand, which computes
-   to a PERCENTAGE flex-basis:0%) - percentage flex-basis inside a
-   stretch-sized flex item (col-main here) is a genuinely inconsistent corner
-   of the flexbox spec/engines; it was silently resolving courses-card to
-   its content height instead of filling col-main. A literal 0 length has no
-   such ambiguity. */
 .courses-card {
   flex: 1 1 0;
   min-height: 0;
@@ -481,49 +1026,80 @@ html, body {
   overflow: hidden;
 }
 
-/* 14px (not 8px): a full-height list scrolled to a partial row sits right at
-   its own boundary, so the next group's title needs real breathing room or
-   the two read as crowded into each other. flex:1 1 0 (not none) - the two
-   groups now SHARE whatever vertical room courses-card has, instead of each
-   being a fixed 128px block. That room varies a lot (min-height:500px on
-   the grid, a tall window, few vs. many courses), and a fixed list height
-   used to leave that leftover as dead empty space between the lists and
-   the progress HUD - which read as a layout bug ("why is there a big empty
-   gap, why is the HUD floating disconnected from the list above it") even
-   though nothing was technically broken. Letting the lists grow means that
-   room becomes more visible rows instead of a void.
-   No min-height:0 here (deliberately, unlike most flex items in this file) -
-   leaving it at the default `auto` lets flexbox's automatic-minimum-size
-   rule apply: since this group has overflow:visible, its floor becomes its
-   own content's min-content size, which includes .course-list's own
-   min-height:64px. Overriding it to 0 (as tried initially) breaks that
-   chain - the group collapses to 0 under real space pressure and silently
-   swallows the list's 64px floor, since overflow:hidden two levels up on
-   .courses-card then clips it away entirely. */
-.course-group {
-  margin-top: 14px;
+/* Both groups share ONE scroll area, so the visible list is as long as the
+   card allows instead of each group being clipped to a tiny fixed slice. */
+.course-scroll-wrap {
+  position: relative;
   flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+}
+
+/* the last visible row is often clipped mid-height - fade it out so it
+   reads as "more below" instead of a rendering bug */
+.course-scroll-wrap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 4px;
+  bottom: 0;
+  height: 20px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.92));
+}
+
+[data-theme="dark"] .course-scroll-wrap::after {
+  background: linear-gradient(180deg, rgba(26, 26, 30, 0), rgba(26, 26, 30, 0.95));
+}
+
+.course-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 3px;
+  padding-bottom: 4px;
+}
+
+.course-group {
+  flex: none;
   display: flex;
   flex-direction: column;
 }
 
 .course-group-title {
   flex: none;
-  font-weight: 700;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
-/* min-height (not a fixed height) - grows with courses-card's available
-   room via the flex column above, only falling back to its own scrollbar
-   once content exceeds whatever height it was actually given. */
+.group-dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.dot-zhidao { background: var(--text); }
+.dot-hike { background: var(--text-faint); }
+
+.group-count {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 10.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
 .course-list {
-  flex: 1 1 0;
-  min-height: 64px;
-  overflow-y: auto;
+  flex: none;
+  min-height: 56px;
   display: flex;
   flex-direction: column;
+  gap: 1px;
 }
 
 .course-row {
@@ -531,75 +1107,141 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 4px;
-  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s ease;
 }
 
-.course-row:last-child { border-bottom: none; }
+.course-row:hover { background: var(--hover-bg); }
+.course-row:has(.course-checkbox:checked) { background: var(--selected-bg); }
 
-.course-row input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; flex: none; }
+.course-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border-radius: 4px;
+  border: 1.5px solid var(--check-border);
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
 
-.course-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.course-row input[type="checkbox"]:hover { border-color: var(--check-hover-border); }
 
-/* margin:auto self-centers this lone child inside the now-flexible
-   .course-list (a flex column), instead of it sitting pinned to the top-left
-   corner of a tall empty box - reads as a deliberate empty state, not
-   leftover space. */
+.course-row input[type="checkbox"]:checked {
+  border-color: transparent;
+  background: var(--check-icon) center / 11px 11px no-repeat, var(--check-bg);
+}
+
+.course-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.course-row:has(.course-checkbox:checked) .course-name { color: var(--text); }
+
 .empty-hint {
   flex: none;
   margin: auto;
-  color: var(--text-muted);
-  font-size: 12px;
+  color: var(--text-faint);
+  font-size: 11px;
+  letter-spacing: 0.02em;
   padding: 6px 4px;
 }
 
+/* One calm, centered empty state for the whole list (the two group headings
+   are hidden while they have no rows - see renderCourses in app.js). */
+.courses-empty {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 10px;
+}
+
+.courses-empty-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+  color: var(--empty-icon-fg);
+  background: var(--empty-icon-bg);
+  border: 1px solid var(--empty-icon-border);
+}
+
+.courses-empty-icon svg { width: 19px; height: 19px; }
+
+.courses-empty-title { font-size: 12.5px; font-weight: 600; color: var(--text-dim); }
+.courses-empty-sub { font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.02em; }
+
 /* ---------------- progress ---------------- */
 
-/* Lives inside .courses-card, right after the two course-groups (which now
-   flex-grow to absorb all the card's leftover height themselves, so this
-   just needs a small fixed gap rather than being pushed to the bottom). A
-   flat rounded sub-panel, matching the rest of the card language. */
 .progress-block {
+  position: relative;
   flex: none;
-  margin-top: 14px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--card-alt);
+  margin-top: 10px;
+  padding: 12px 14px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--field-bg);
+  overflow: hidden;
+  transition: background .25s ease, border-color .25s ease;
+}
+
+.progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .progress-label {
+  display: inline-flex;
+  align-items: center;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
-  margin-bottom: 8px;
 }
 
-/* Plain, directly-updated status text - no timestamp, no tag chip, no
-   monospace: just the course/video name as ordinary prose, not a
-   command-prompt-style log line. */
-.current-status {
-  margin-bottom: 10px;
+.progress-percent {
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--percent);
 }
-.current-course, .current-video {
-  font-size: 13px;
-  line-height: 1.6;
-}
+
+.current-status { margin: 6px 0 8px; }
+.current-course, .current-video { font-size: 12.5px; line-height: 1.5; }
 .current-course { color: var(--text); font-weight: 600; }
-.current-video { color: var(--text-muted); }
+.current-video { color: var(--text-muted); font-size: 11.5px; }
 .current-course:empty, .current-video:empty { display: none; }
 
-.progress-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.progress-row { display: flex; align-items: center; gap: 12px; }
 
 .progress-track {
   position: relative;
   flex: 1;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--card);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
   overflow: hidden;
 }
 
@@ -607,77 +1249,307 @@ html, body {
   position: relative;
   height: 100%;
   width: 0%;
-  border-radius: 999px;
-  background: var(--accent);
-  transition: width .3s ease;
+  border-radius: 3px;
+  background: var(--fill-bg);
+  box-shadow: var(--fill-glow);
+  transition: width .35s var(--ease);
+  overflow: hidden;
 }
 
-.progress-percent {
-  font-weight: 700;
-  font-family: "JetBrains Mono", Consolas, "Cascadia Mono", ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-  color: var(--accent-strong);
-  width: 58px;
-  text-align: right;
+/* soft light sweep while actually running (app.js toggles .active) */
+.progress-fill.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: translateX(-100%);
+  animation: progress-sheen 2.1s ease-in-out infinite;
+}
+
+@keyframes progress-sheen {
+  0% { transform: translateX(-100%); }
+  55%, 100% { transform: translateX(100%); }
 }
 
 .progress-caption {
-  margin-top: 8px;
+  margin-top: 7px;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Needs manual attention (most likely a CAPTCHA - see the threshold check
-   in app.js's onRunCourseEnd), so it's a tinted banner rather than plain
-   caption text - it should read as distinct from the routine status lines
-   above it. */
 .captcha-alert {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(227,179,65,.14);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 9px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-bg);
   color: var(--gold);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.5;
 }
+
+.captcha-copy { min-width: 0; }
+
+.captcha-title { font-size: 11.5px; font-weight: 700; line-height: 1.4; }
+
+.captcha-sub {
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--gold);
+  opacity: .85;
+}
+
+.captcha-alert .btn { flex: none; }
 
 .live-dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--border);
+  background: var(--text-faint);
+  opacity: .6;
   margin-left: 7px;
-  vertical-align: 2px;
+  vertical-align: 1px;
+  transition: background .2s ease, opacity .2s ease;
 }
 .live-dot.on {
   background: var(--ok);
-  box-shadow: 0 0 6px var(--ok);
-  animation: live-pulse 1.4s ease-in-out infinite;
+  opacity: 1;
+  animation: live-pulse 1.6s ease-in-out infinite;
 }
 @keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ---------------- settings ---------------- */
+
+.settings-body {
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.save-hint {
+  color: var(--ok);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ---------------- about ---------------- */
+
+.about-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.about-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.about-mark {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+}
+
+.about-mark img { width: 26px; height: 26px; object-fit: contain; }
+
+.about-copy { min-width: 0; }
+
+.about-name { font-size: 13px; font-weight: 650; color: var(--text); letter-spacing: 0.01em; }
+
+.about-desc { margin-top: 3px; font-size: 10.5px; color: var(--text-faint); line-height: 1.5; }
+
+.about-meta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+
+.about-version {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- logs ---------------- */
+
+.log-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.log-meta {
+  margin-right: auto;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.log-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--secondary-border);
+  background: var(--secondary-bg);
+  color: var(--secondary-fg);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.log-btn:hover { background: var(--secondary-hover); color: var(--text); }
+.log-btn.active { background: var(--selected-bg); color: var(--text); border-color: var(--card-border); }
+.log-btn.active::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+.log-view {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--field-bg);
+  color: var(--text-dim);
+  font-family: "Cascadia Mono", "JetBrains Mono", Consolas, ui-monospace, "PingFang SC", monospace;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.log-line { display: flex; gap: 10px; }
+
+.log-time {
+  flex: none;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.log-text {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.log-line.err .log-text { color: var(--bad); }
+.log-line.warn .log-text { color: var(--gold); }
+.log-line.sys .log-text { color: var(--text); }
+
+.log-empty {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  text-align: center;
+  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "SF Pro Display", "Hiragino Sans GB", "Helvetica Neue",
+               "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+}
+
+.log-empty-title { font-size: 12.5px; font-weight: 600; color: var(--text-dim); }
+.log-empty-sub { font-size: 10.5px; color: var(--text-faint); }
+
+.log-dot {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ok);
+}
 
 /* ---------------- statusbar ---------------- */
 
 .statusbar {
   flex: none;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 6px 18px;
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 11px;
+  height: 28px;
+  padding: 0 8px 0 4px;
+  color: var(--text-faint);
+  font-size: 10px;
+  letter-spacing: 0.05em;
 }
 
-.save-hint {
-  color: var(--ok);
-  font-size: 12px;
+.status-left { display: inline-flex; align-items: center; gap: 8px; }
+
+.status-sep {
+  width: 1px;
+  height: 9px;
+  background: var(--card-border);
 }
 
-/* ---------------- scrollbars ---------------- */
+.status-brand { color: var(--text-faint); }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+/* ---------------- focus + scrollbars ---------------- */
+
+:focus-visible {
+  outline: 2px solid var(--field-focus);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }

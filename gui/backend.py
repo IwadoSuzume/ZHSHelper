@@ -20,6 +20,9 @@ import json
 import re
 import threading
 from functools import partial
+from urllib.parse import quote, urlencode
+
+import requests
 
 # utils.progressBar's default argument calls os.get_terminal_size() at import
 # time, and helper.py calls it directly with no guard. A --windowed build (or
@@ -186,6 +189,8 @@ def load_or_migrate_config():
 
 def _settings_view(config):
     return {
+        "username": config.username or "",
+        "password": config.password or "",
         "proxies": dict(config.proxies or {}),
         "logLevel": config.logLevel or "INFO",
         "pushplusEnable": bool(config.pushplus.enable),
@@ -201,6 +206,10 @@ def get_settings():
 
 def save_settings(patch):
     config = load_or_migrate_config()
+    if "username" in patch:
+        config.username = (patch["username"] or "").strip()
+    if "password" in patch:
+        config.password = patch["password"] or ""
     if "proxies" in patch:
         config.proxies = patch["proxies"] or {}
     if "logLevel" in patch:
@@ -235,7 +244,104 @@ def save_settings(patch):
     return {"ok": True}
 
 
-_GUI_STATE_DEFAULTS = {"speed": None, "threshold": None, "limit": 0, "lastCourseIds": []}
+# ---------------------------------------------------------------- captcha
+# CAPTCHA hand-off: the GUI opens the login center in an in-app browser
+# window, pre-fills the account/password, and lets the user clear the CAPTCHA.
+# Once that window leaves the login pages for the course portal, the GUI
+# navigates it to the course that hit the CAPTCHA. Nothing here tries to
+# solve a CAPTCHA automatically.
+
+LOGIN_CENTER = "https://login.zhihuishu.com/"
+PASSPORT_LOGIN = "https://passport.zhihuishu.com/login"
+PASSPORT_SERVICE = "https://onlineservice-api.zhihuishu.com/login/gologin"
+PASSPORT_VALIDATE = "https://passport.zhihuishu.com/user/validateAccountAndPassword"
+PASSPORT_NEED_AUTH = "https://appcomm-user.zhihuishu.com/app-commserv-user/userInfo/checkNeedAuth"
+ZHIDAO_COURSE_URL = "https://studyh5.zhihuishu.com/videoStudy.html#/studyVideo?recruitAndCourseId=%s"
+HIKE_HOME_URL = "https://hike.zhihuishu.com/"
+
+_BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+               "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+
+
+def _course_web_url(course_id):
+    cid = str(course_id or "").strip()
+    if re.search(r"[a-zA-Z]", cid):
+        return ZHIDAO_COURSE_URL % quote(cid)
+    # Hike has no public deep-link pattern; its portal opens the course list.
+    return HIKE_HOME_URL
+
+
+def _browser_login_url(account, password, proxies=None):
+    """Return (url, error). The url is a passport GET that logs the browser in
+    without any form filling - used only as a fallback hint for the UI."""
+    session = requests.Session()
+    session.headers.update({
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": _BROWSER_UA,
+        "Origin": "https://passport.zhihuishu.com",
+        "Referer": PASSPORT_LOGIN,
+    })
+    try:
+        resp = session.post(
+            PASSPORT_VALIDATE,
+            data={"account": account, "password": password},
+            proxies=proxies or {},
+            timeout=15,
+        )
+        info = resp.json()
+    except Exception:
+        return None, "network"
+    if not isinstance(info, dict):
+        return None, "network"
+    status = info.get("status")
+    if status == -2:
+        return None, "bad_credentials"
+    if status == -4:
+        return None, "captcha_required"
+    if status == -9:
+        return None, "need_auth"
+    if status != 1:
+        return None, "login_failed"
+    uuid = info.get("uuid")
+    if uuid:
+        try:
+            auth = session.post(
+                PASSPORT_NEED_AUTH, data={"uuid": uuid}, proxies=proxies or {}, timeout=10
+            ).json()
+            if isinstance(auth, dict) and (auth.get("rt") or {}).get("needAuth"):
+                return None, "need_auth"
+        except Exception:
+            pass
+    pwd = info.get("pwd")
+    if not pwd:
+        return None, "login_failed"
+    return PASSPORT_LOGIN + "?" + urlencode({
+        "service": PASSPORT_SERVICE,
+        "account": account,
+        "pwd": pwd,
+        "validate": 0,
+    }), None
+
+
+def captcha_context(course_id=None):
+    """Everything the GUI needs to run the CAPTCHA hand-off."""
+    config = load_or_migrate_config()
+    account = (config.username or "").strip()
+    password = config.password or ""
+    auto_url, login_error = (None, None)
+    if account and password:
+        auto_url, login_error = _browser_login_url(account, password, config.proxies or {})
+    return {
+        "account": account,
+        "password": password,
+        "courseUrl": _course_web_url(course_id),
+        "loginUrl": LOGIN_CENTER,
+        "autoLoginUrl": auto_url,
+        "loginError": login_error,
+    }
+
+
+_GUI_STATE_DEFAULTS = {"speed": None, "threshold": None, "limit": 0, "lastCourseIds": [], "theme": "light"}
 
 
 def _gui_state_path():

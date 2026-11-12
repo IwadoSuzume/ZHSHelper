@@ -2,7 +2,7 @@
 ; Build it through gui\build_release.py --installer (which freezes the app into
 ; dist\ZHSHelper\, selftests it and then runs ISCC on this file), or compile it
 ; by hand after a build:
-;   ISCC /DAppVersion=2.6.1 installer\ZHSHelper.iss
+;   ISCC /DAppVersion=2.6.2 installer\ZHSHelper.iss
 ;
 ; What gets installed is dist\ZHSHelper\ exactly: ZHSHelper.exe (all project
 ; code and the web UI are inside it), the Python runtime in _internal\, and
@@ -16,7 +16,7 @@
 ; This file is UTF-8 with a BOM (it contains Chinese text).
 
 #ifndef AppVersion
-  #define AppVersion "2.6.1"
+  #define AppVersion "2.6.2"
 #endif
 #ifndef SrcDir
   #define SrcDir AddBackslash(SourcePath) + ".."

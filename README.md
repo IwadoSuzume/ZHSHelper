@@ -18,7 +18,7 @@
   &nbsp;·&nbsp;
   <a href="https://suzume.cloud/projects/zhshelper">项目主页</a>
   &nbsp;·&nbsp;
-  <a href="#从源码运行">从源码构建</a>
+  <a href="#从源码运行">从源码运行</a>
 </p>
 
 ---
@@ -61,7 +61,7 @@ ZHSHelper 是一个面向智慧树平台的 Windows 桌面工具：扫码登录�
 
 刷课过程中平台可能要求人机验证。检测到验证后，进度条下方会出现提示与「打开验证页」按钮：
 
-1. 程序用内置浏览器打开智慧树登录中心，并自动填入「设置 → 浏览器验证凭据」里保存的账号和密码；
+1. 程序用内置浏览器打开智慧树登录页（`login.zhihuishu.com`），并自动填入「设置 → 浏览器验证凭据」里保存的账号和密码；
 2. **验证码由你本人完成**，程序不会尝试绕过；
 3. 登录进入课程页面后，会自动跳转到触发验证的那门课（知到课直达视频页，校内学分课打开 Hike 门户）；
 4. 完成验证后回到 ZHSHelper，重新点击「开始运行」继续。
@@ -71,7 +71,7 @@ ZHSHelper 是一个面向智慧树平台的 Windows 桌面工具：扫码登录�
 ## 常见问题
 
 **二维码过期或登录失败？**
-点击「重新登录」重新生成二维码；若持续失败，检查网络或代理设置。
+点击「开始登录」或「重新登录」重新生成二维码；若持续失败，检查网络或代理设置。
 
 **验证完成后仍然提示验证？**
 先在应用内重新登录刷新会话，再重新开始运行。部分课程需要等待几分钟才会解除限制。
@@ -93,7 +93,7 @@ Hike 没有公开的课程深链，验证后会打开课程门户，需要手动
 git clone https://github.com/IwadoSuzume/ZHSHelper.git
 cd ZHSHelper
 python -m venv venv
-venv\Scripts\pip install -r requirements-gui.txt
+venv\Scripts\pip install -r requirements.txt -r requirements-gui.txt
 venv\Scripts\python.exe gui\app.py
 ```
 
